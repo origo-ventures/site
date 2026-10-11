@@ -1,0 +1,52 @@
+ORIGO VENTURES — GITHUB PAGES + CONTROL PANEL SETUP
+===================================================
+
+1) Create the repository
+   - github.com > New repository. Name e.g. origo-website. Choose PUBLIC (free GitHub Pages needs public).
+   - Upload ALL files from this zip to the repository ROOT (index.html must be in the root,
+     together with the folders "assets" and the file "origo-control.html").
+     Easiest: repo page > "Add file" > "Upload files" > drag the extracted files/folders > Commit.
+     (The file ".nojekyll" must be included too. If your uploader skips hidden files, create an empty
+      file named .nojekyll in the root with "Add file > Create new file".)
+
+2) Turn on GitHub Pages
+   - Repo > Settings > Pages > Source: "Deploy from a branch" > Branch: main, folder: / (root) > Save.
+   - After 1-2 minutes the site opens at  https://<username>.github.io/<repo>/
+
+3) Connect your custom domain
+   - Same Settings > Pages page > "Custom domain": type your domain (example.com) > Save.
+   - At your domain provider's DNS settings add these 4 A records for the apex domain (@):
+         185.199.108.153
+         185.199.109.153
+         185.199.110.153
+         185.199.111.153
+     and, for www, one CNAME record:  www  ->  <username>.github.io
+   - Wait for DNS (minutes to a few hours), then tick "Enforce HTTPS" in Settings > Pages.
+
+4) Create the access token for the control panel (fine-grained, ONE repo only)
+   - GitHub > your profile picture > Settings > Developer settings > Personal access tokens >
+     Fine-grained tokens > Generate new token.
+   - Repository access: "Only select repositories" > choose your origo-website repo.
+   - Permissions > Repository permissions > Contents: "Read and write".
+   - Expiration: choose a long period (e.g. 1 year). Generate and COPY the token (shown once).
+
+5) Use the control panel
+   - Open  https://yourdomain.com/origo-control.html
+   - Enter: GitHub username, repository name, branch (main), and the token. Tick "Remember on this device"
+     only on your own phone/computer.
+   - Edit anything block by block, press "Save to GitHub". The live site updates in 1-2 minutes
+     (then refresh with Ctrl+Shift+R).
+   - Photos are resized in your browser and uploaded for you. Replaced photos are deleted automatically.
+   - Each save is a GitHub commit, so you can always restore an older version from the repo's History.
+
+6) Add a Google map for the office
+   - Panel > Content > Contact info > "Office location for the Google map":
+     type the full office address, OR paste the code from Google Maps > Share > Embed a map.
+
+7) Tips
+   - Titles: a new line = line break; *word* = outlined/accent word.
+   - Panel > Extra pages: create any new page (menu link + footer link are added automatically).
+   - Keep the panel file name private-ish (rename origo-control.html to something only you know,
+     for example control-k7x2.html). Without the token nobody can change anything.
+   - Never put the token inside any website file or share it. If it leaks, delete it in GitHub
+     (Settings > Developer settings) and create a new one.
