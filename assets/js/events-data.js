@@ -11,35 +11,31 @@
 window.ORIGO_EVENTS = [
     {
         "id": "origo-founders-summit-2026",
-        "title": "The 90",
-        "date": "11th October 2026",
-        "time": "04:00 PM – 4:00 AM",
+        "title": "Afters Club",
+        "date": "15th October 2026",
+        "time": "07:00 PM – 12:00 AM",
         "venue": "Scholastica Club, Dhaka, Bangladesh",
         "category": "Event",
         "status": "Current",
-        "tagline": "THE 90 is a curated social experience by ORIGO VENTURES, bringing together guests, investors, friends and members of the ORIGO community for an evening of football, gaming, entertainment, food and social connection.",
+        "tagline": "An exclusive night escape designed for curated music, sophisticated conversations, and premium club culture.",
         "description": [
-            "The event will feature a PlayStation Game Pass, a live screening of the Liverpool vs Manchester City Premier League match, followed by music, food and a post-match social gathering.",
-            "Designed as more than a football screening, THE 90 aims to create an engaging community experience where guests can compete, connect, relax and enjoy the night together."
+            "Step into the ultimate night escape where the energy never fades. Experience a premium fusion of curated music, high-stakes poker, and gourmet flavors. Connect with an exclusive crowd under a vibrant, sophisticated atmosphere. The night is young, the bar is raised—welcome to the Afters Club!"
         ],
-        "image": "",
+        "image": "assets/images/events/afters-club__pmv3o46fp0sd.png",
         "tags": [
-            "Premier League Match Screening",
             "Food",
-            "Investors",
-            "Meetups",
-            "PlayStation Gaming",
-            "Social Gathering",
             "Music",
-            "Games"
+            "Poker Table",
+            "Bar",
+            "Social Gathering"
         ],
         "stats": [
             {
-                "value": "200+",
+                "value": "80+",
                 "label": "Guests"
             },
             {
-                "value": "Football",
+                "value": "Social Gathering",
                 "label": "Topics"
             },
             {
@@ -47,15 +43,15 @@ window.ORIGO_EVENTS = [
                 "label": "Day"
             }
         ],
-        "ticketLink": "#"
+        "ticketLink": "https://tickets.ecube-entertainment.com/origo/afters/"
     },
     {
         "id": "venture-night-dhaka",
-        "title": "Venture Night Dhaka",
-        "date": "20 October 2026",
+        "title": "Halloween",
+        "date": "29 October 2026",
         "time": "7:00 PM onwards",
         "venue": "Dhaka, Bangladesh",
-        "category": "Networking",
+        "category": "Horror",
         "status": "Upcoming",
         "tagline": "An evening to meet the people building new businesses.",
         "description": [
@@ -63,12 +59,14 @@ window.ORIGO_EVENTS = [
         ],
         "image": "",
         "tags": [
-            "Networking",
-            "Community"
+            "Community",
+            "Social Gathering",
+            "Fun",
+            "Food"
         ],
         "stats": [
             {
-                "value": "150",
+                "value": "80",
                 "label": "Guests"
             },
             {
