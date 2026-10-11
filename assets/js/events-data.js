@@ -21,7 +21,7 @@ window.ORIGO_EVENTS = [
         "description": [
             "Step into the ultimate night escape where the energy never fades. Experience a premium fusion of curated music, high-stakes poker, and gourmet flavors. Connect with an exclusive crowd under a vibrant, sophisticated atmosphere. The night is young, the bar is raised—welcome to the Afters Club!"
         ],
-        "image": "assets/images/events/afters-club__pmv3o46fp0sd.png",
+        "image": "assets/images/events/afters-club__pmv410uof7tz.jpg",
         "tags": [
             "Food",
             "Music",
