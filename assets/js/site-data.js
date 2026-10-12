@@ -17,10 +17,10 @@ window.ORIGO_SITE = {
     },
     "founder": {
         "name": "Nazmus Shams",
-        "role": "Founder",
-        "bio": "Replace with the founder's approved short bio: background, experience and the vision behind Origo Ventures.",
-        "photo": "",
-        "qr": ""
+        "role": "Founder, Origo Ventures",
+        "bio": "I build businesses, communities and experiences around the things I believe in — culture, connection and good ideas. Here’s a little of what I’ve built along the way.",
+        "photo": "assets/images/founder/nazmus-shams__pmv53q8oz6qp.jpg",
+        "qr": "assets/images/founder/nazmus-shams__pmv53qjlzlu6.png"
     },
     "venturesIntro": "Placeholder entries. Replace with Origo Ventures' approved companies and projects.",
     "ventures": [
