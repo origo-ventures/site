@@ -17,7 +17,7 @@ window.ORIGO_SITE = {
     },
     "founder": {
         "name": "Nazmus Shams",
-        "role": "Founder, Origo Ventures",
+        "role": "Founder",
         "bio": "I build businesses, communities and experiences around the things I believe in — culture, connection and good ideas. Here’s a little of what I’ve built along the way.",
         "photo": "assets/images/founder/nazmus-shams__pmv53q8oz6qp.jpg",
         "qr": "assets/images/founder/nazmus-shams__pmv53qjlzlu6.png"
@@ -25,19 +25,18 @@ window.ORIGO_SITE = {
     "venturesIntro": "Placeholder entries. Replace with Origo Ventures' approved companies and projects.",
     "ventures": [
         {
-            "name": "Wedding Berries Events",
-            "year": "2025",
-            "category": "Event Planning",
+            "name": "Splendor by Aneeka Bushra",
+            "year": "2024",
+            "category": "Beauty Salon",
             "description": "Replace with the approved description of this company, what it does and the role Origo Ventures plays.",
             "tags": [
-                "Strategy",
-                "Plan",
-                "Growth",
-                "Execution"
+                "Product",
+                "Brand",
+                "Partnerships"
             ],
             "stats": [
                 {
-                    "value": "2025",
+                    "value": "2024",
                     "label": "Founded"
                 },
                 {
@@ -52,18 +51,19 @@ window.ORIGO_SITE = {
             "image": ""
         },
         {
-            "name": "Splendor by Aneeka Bushra",
-            "year": "2024",
-            "category": "Beauty Salon",
+            "name": "Wedding Berries Events",
+            "year": "2025",
+            "category": "Event Planning",
             "description": "Replace with the approved description of this company, what it does and the role Origo Ventures plays.",
             "tags": [
-                "Product",
-                "Brand",
-                "Partnerships"
+                "Strategy",
+                "Plan",
+                "Growth",
+                "Execution"
             ],
             "stats": [
                 {
-                    "value": "2024",
+                    "value": "2025",
                     "label": "Founded"
                 },
                 {
