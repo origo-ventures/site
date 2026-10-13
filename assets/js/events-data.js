@@ -79,38 +79,5 @@ window.ORIGO_EVENTS = [
             }
         ],
         "ticketLink": "#"
-    },
-    {
-        "id": "origo-demo-day-2027",
-        "title": "Origo Demo Day",
-        "date": "15 January 2027",
-        "time": "6:00 PM",
-        "venue": "Dhaka, Bangladesh",
-        "category": "Demo Day",
-        "status": "Upcoming",
-        "tagline": "Early-stage ventures pitch to investors and partners.",
-        "description": [
-            "Replace this with the approved event description, venue and relevant details."
-        ],
-        "image": "",
-        "tags": [
-            "Pitching",
-            "Investors"
-        ],
-        "stats": [
-            {
-                "value": "10",
-                "label": "Startups"
-            },
-            {
-                "value": "Dhaka",
-                "label": "City"
-            },
-            {
-                "value": "1",
-                "label": "Day"
-            }
-        ],
-        "ticketLink": "#"
     }
 ];
