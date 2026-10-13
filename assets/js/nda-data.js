@@ -5,9 +5,9 @@
    ===================================================================== */
 
 window.ORIGO_NDA = {
-    "title": "NDA",
-    "subtitle": "Never Dream Alone",
-    "intro": "Replace with a short line about NDA and the experiences listed under it.",
+    "title": "Never Dream Alone",
+    "subtitle": "NDA - Community & experiences",
+    "intro": "Never Dream Alone is the umbrella for the\nideas I build around community, culture and\nshared experiences.\nThe formats are different. The thinking is the\nsame: give people a reason to leave the\nhouse, meet each other and feel part of\nsomething.",
     "events": [
         {
             "name": "Clock End",
@@ -53,8 +53,8 @@ window.ORIGO_NDA = {
         },
         {
             "name": "Afters",
-            "tagline": "",
-            "image": "",
+            "tagline": "A Thursday-night social built around music, people and an easy reason to stay out a little longer.",
+            "image": "assets/images/nda/afters__pmv6g9i17a5q.png",
             "link": ""
         },
         {
