@@ -316,3 +316,9 @@ a.nda-card:hover{border-color:rgba(176,122,75,.7);background:var(--surface)}
 .pg-video iframe{width:100%;height:100%;border:0}
 .gallery .pg-img img{aspect-ratio:4/3;object-fit:cover}
 @media (max-width:640px){.map-frame{aspect-ratio:4/3}}
+
+/* NDA logo */
+.nda-head{display:flex;align-items:center;gap:30px}
+.nda-logo{width:130px;height:auto;display:block;flex:0 0 auto}
+.nda-logo[hidden]{display:none}
+@media (max-width:640px){.nda-head{flex-direction:column;align-items:flex-start;gap:18px}.nda-logo{width:96px}}

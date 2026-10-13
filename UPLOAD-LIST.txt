@@ -1,0 +1,16 @@
+CODE-ONLY UPDATE  (your content is NOT touched)
+================================================
+Upload these 5 files into your GitHub repo (same folders, replace when asked):
+
+  origo-control.html                    (control panel: labelled Up/Down/Delete buttons, NDA logo field, brand title fixed)
+  events.html                           (NDA logo spot beside the NDA heading)
+  assets/js/events.js                   (shows the NDA logo; shows assets/images/nda/nda-logo.png by default)
+  assets/css/style.css                  (NDA logo styles)
+  assets/images/nda/nda-logo.png        (the NDA logo)
+
+Optional clean-up: delete the old file  event.html  from the repo (no longer used).
+
+DO NOT upload/overwrite: assets/js/*-data.js, assets/images/ photos you uploaded, CNAME.
+If you replace a file by mistake, restore it from the repo's History on GitHub.
+
+After the commit, wait 1-2 minutes and refresh with Ctrl+Shift+R.

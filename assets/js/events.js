@@ -67,6 +67,9 @@
     const N = window.ORIGO_NDA || { events: [] };
     const t = document.getElementById("nda-title"); if (t && N.title) t.textContent = N.title;
     const st = document.getElementById("nda-subtitle"); if (st && N.subtitle) st.textContent = N.subtitle;
+    const lg = document.getElementById("nda-logo");
+    const logoSrc = (N.logo === undefined) ? "assets/images/nda/nda-logo.png" : N.logo;
+    if (lg && logoSrc) { lg.onerror = () => { lg.hidden = true; }; lg.onload = () => { lg.hidden = false; }; lg.src = logoSrc; }
     const it = document.getElementById("nda-intro"); if (it && N.intro) it.textContent = N.intro;
     nda.innerHTML = (N.events || []).map((e, i) => {
       const inner = `

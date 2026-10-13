@@ -30,12 +30,14 @@ h1{font-size:25px;margin:0 0 6px;font-weight:600}
 .card b{display:block;font-size:17px;margin-bottom:2px}.card span{color:var(--muted);font-size:13px}
 .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
 .row-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden}
-.row-head{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#191919;border-bottom:1px solid var(--line)}
+.row-head{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#191919;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .badge{flex:0 0 auto;min-width:26px;height:26px;border-radius:13px;background:var(--accent);color:#fff;display:inline-grid;place-items:center;font-size:12px;font-weight:600;padding:0 6px}
 .rtitle{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
-.rbtns{display:flex;gap:6px}
-.rbtns button{width:38px;height:38px;border-radius:8px;border:1px solid var(--line);background:#222;color:#eee;font-size:18px;cursor:pointer}
-.rbtns .del{color:#ff8a85}
+.rbtns{display:flex;gap:6px;margin-left:auto}
+.rbtns button{height:38px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:#222;color:#eee;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.rbtns button b{font-size:16px;margin-right:3px}
+.rbtns .del{color:#ff8a85;border-color:#6b2f2d;background:#2a1514}
+@media (max-width:560px){.rbtns{width:100%}.rbtns button{flex:1}}
 .rbody{padding:14px;display:grid;grid-template-columns:1fr;gap:12px}
 .fld{display:flex;flex-direction:column;gap:5px;min-width:0}
 .fld>span.l{font-size:12px;color:var(--muted);letter-spacing:.04em}
@@ -82,6 +84,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       var v = attrs[k];
       if (k === 'class') e.className = v;
       else if (k === 'text') e.textContent = v;
+      else if (k === 'html') e.innerHTML = v;
       else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
       else if (v === true) e.setAttribute(k, '');
       else if (v !== false && v != null) e.setAttribute(k, v);
@@ -241,7 +244,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       ] },
     { id: 'nda', group: 'Content', title: 'NDA', file: 'nda-data.js', varName: 'ORIGO_NDA', kind: 'listobj', list: 'events', dir: 'nda', conv: 'assets/images/nda/nda-%02d.jpg', item: 'NDA event', tk: 'name',
       intro: 'Never Dream Alone: the event blocks at the bottom of the Events page.',
-      head: [{ key: 'title', label: 'Section title', type: 'text' }, { key: 'subtitle', label: 'Small label above the title', type: 'text' }, { key: 'intro', label: 'Intro line', type: 'textarea', rows: 2 }],
+      head: [{ key: 'title', label: 'Section title', type: 'text' }, { key: 'subtitle', label: 'Small label above the title', type: 'text' }, { key: 'intro', label: 'Intro line', type: 'textarea', rows: 2 }, { key: 'logo', label: 'NDA logo (transparent PNG works best)', type: 'image' }],
       fields: [{ key: 'name', label: 'Event name', type: 'text' }, { key: 'tagline', label: 'Short line (optional)', type: 'text' }, { key: 'link', label: 'Link (optional, makes the block clickable)', type: 'url' }, { key: 'image', label: 'Photo', type: 'image' }] },
     { id: 'companies', group: 'Content', title: 'Companies', file: 'companies-data.js', varName: 'ORIGO_COMPANIES', kind: 'list', dir: 'companies', conv: 'assets/images/companies/company-%d.jpg', item: 'Company', tk: 'name',
       intro: 'Shown on the Companies page, in this order.',
@@ -392,7 +395,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
     }
     function rowEl(it, i) {
       var tt = el('span', { class: 'rtitle', text: title(it) || ('New ' + spec.item) });
-      var up = el('button', { type: 'button', title: 'Move up', html: '&uarr;' }), dn = el('button', { type: 'button', title: 'Move down', html: '&darr;' }), del = el('button', { type: 'button', class: 'del', title: 'Delete', html: '&times;' });
+      var up = el('button', { type: 'button', title: 'Move up', 'aria-label': 'Move up', html: '<b>&uarr;</b> Up' }), dn = el('button', { type: 'button', title: 'Move down', 'aria-label': 'Move down', html: '<b>&darr;</b> Down' }), del = el('button', { type: 'button', class: 'del', title: 'Delete', 'aria-label': 'Delete', html: '<b>&#10005;</b> Delete' });
       up.addEventListener('click', function () { if (i > 0) { var x = arr[i]; arr[i] = arr[i - 1]; arr[i - 1] = x; touch(ctx.file); draw(); } });
       dn.addEventListener('click', function () { if (i < arr.length - 1) { var x = arr[i]; arr[i] = arr[i + 1]; arr[i + 1] = x; touch(ctx.file); draw(); } });
       del.addEventListener('click', function () { if (confirm('Delete this ' + spec.item.toLowerCase() + '? It is removed when you press Save.')) { arr.splice(i, 1); touch(ctx.file); draw(); } });
