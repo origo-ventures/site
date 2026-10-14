@@ -11,28 +11,27 @@
 window.ORIGO_EVENTS = [
     {
         "id": "origo-founders-summit-2026",
-        "title": "Afters Club",
-        "date": "15th October 2026",
+        "title": "Halloween",
+        "date": "29th October 2026",
         "time": "07:00 PM – 12:00 AM",
-        "venue": "Scholastica Club, Dhaka, Bangladesh",
+        "venue": "SC Club, Dhaka, Bangladesh",
         "category": "Event",
         "status": "Current",
-        "tagline": "An exclusive night escape designed for curated music, sophisticated conversations, and premium club culture.",
+        "tagline": "Get ready for a night of frights, fun, and eerie delights! Put on your best costume and join us for a spooktacular celebration!",
         "description": [
-            "Step into the ultimate night escape where the energy never fades. Experience a premium fusion of curated music, high-stakes poker, and gourmet flavors. Connect with an exclusive crowd under a vibrant, sophisticated atmosphere. The night is young, the bar is raised—welcome to the Afters Club!"
+            "The moon is high and the spirits are near, It is time for the most thrilling party of the year! Wear your best costume and bring all your cheer, For a night of sweet treats and chills so severe!"
         ],
         "image": "assets/images/events/afters-club__pmv41iyv2kob.jpg",
         "tags": [
             "Food",
             "Music",
-            "Poker Table",
-            "Bar",
+            "Spooky Night",
             "Social Gathering"
         ],
         "stats": [
             {
                 "value": "80+",
-                "label": "Guests"
+                "label": "Members, Non-Members"
             },
             {
                 "value": "Social Gathering",
@@ -43,41 +42,6 @@ window.ORIGO_EVENTS = [
                 "label": "Day"
             }
         ],
-        "ticketLink": "https://tickets.ecube-entertainment.com/origo/afters/"
-    },
-    {
-        "id": "venture-night-dhaka",
-        "title": "Halloween",
-        "date": "29 October 2026",
-        "time": "7:00 PM onwards",
-        "venue": "Dhaka, Bangladesh",
-        "category": "Horror",
-        "status": "Upcoming",
-        "tagline": "An evening to meet the people building new businesses.",
-        "description": [
-            "Replace this with the approved event description, venue and relevant details."
-        ],
-        "image": "",
-        "tags": [
-            "Community",
-            "Social Gathering",
-            "Fun",
-            "Food"
-        ],
-        "stats": [
-            {
-                "value": "80",
-                "label": "Guests"
-            },
-            {
-                "value": "1",
-                "label": "Evening"
-            },
-            {
-                "value": "Paid",
-                "label": "Entry"
-            }
-        ],
-        "ticketLink": "#"
+        "ticketLink": ""
     }
 ];
