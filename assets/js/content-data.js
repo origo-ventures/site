@@ -7,7 +7,7 @@
 window.ORIGO_CONTENT = {
     "home": {
         "heroEyebrow": "Origo Ventures · Dhaka",
-        "heroTitle": "Origo Ventures\n*- strategy, growth, shared resources*",
+        "heroTitle": "Strategy, Growth, Shared resources",
         "heroLead": "The structure behind the work — strategy, growth, shared resources and execution across businesses and new ventures.",
         "heroBtn1": {
             "text": "Companies",
@@ -62,9 +62,9 @@ window.ORIGO_CONTENT = {
     },
     "about": {
         "eyebrow": "About",
-        "title": "Built for\n*possibility.*",
-        "lead": "Origo Ventures identifies opportunities, supports ambitious ideas and helps businesses move forward. Replace this draft with approved company information.",
-        "big": "We bring together people, businesses and opportunities to create sustainable value.",
+        "title": "Entrepreneur · Experience Curator · Community Builder",
+        "lead": "Origo Ventures Building businesses, communities and experiences around the things people\ncare about",
+        "big": "We like building things people want to belong to.",
         "meta": [
             {
                 "label": "Focus",
@@ -82,19 +82,22 @@ window.ORIGO_CONTENT = {
         "founderHeading": "Meet the\nFounder",
         "qrTitle": "Scan to connect",
         "qrText": "Point your phone camera at the code.",
-        "valuesHeading": "Vision\nMission\nValues",
+        "valuesHeading": "Business\nCommunity\nCulture\nExperience",
         "valuesCards": [
             {
-                "title": "Vision",
-                "text": "Add the approved vision statement here."
+                "title": "BUSINESS",
+                "text": ""
             },
             {
-                "title": "Mission",
-                "text": "Add the approved mission statement here."
+                "title": "COMMUNITY",
+                "text": ""
             },
             {
-                "title": "Values",
-                "text": "Add the approved company values here."
+                "title": "CULTURE",
+                "text": ""
+            },
+            {
+                "title": "EXPERIENCE"
             }
         ]
     },
@@ -118,7 +121,7 @@ window.ORIGO_CONTENT = {
         "mapHeading": "Find\nUs"
     },
     "cta": {
-        "title": "Ready to build *what's next?*",
+        "title": "Ready to grow *what's next?*",
         "text": "Tell us about your idea or venture. We'll help define the strategic, creative and operational path forward.",
         "btn1": {
             "text": "Start a Conversation",
