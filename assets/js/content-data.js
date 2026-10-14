@@ -7,7 +7,7 @@
 window.ORIGO_CONTENT = {
     "home": {
         "heroEyebrow": "Origo Ventures · Dhaka",
-        "heroTitle": "Building\n*what comes*\nnext.",
+        "heroTitle": "Origo Ventures\n*- strategy, growth, shared resources*",
         "heroLead": "The structure behind the work — strategy, growth, shared resources and execution across businesses and new ventures.",
         "heroBtn1": {
             "text": "Companies",
@@ -40,19 +40,23 @@ window.ORIGO_CONTENT = {
         "venturesHeading": "Selected\nVentures",
         "venturesButton": "All Companies",
         "doHeading": "What We Do",
-        "doLead": "Three principles behind every venture we back or build.",
+        "doLead": "The idea matters & the room matters more.",
         "doCards": [
             {
-                "title": "Discover",
-                "text": "Identify opportunities, markets and ideas with real potential."
+                "title": "Curate",
+                "text": "Start with a clear point of view \nwho is this for, why should it exist,\nand how should it feel?"
             },
             {
                 "title": "Build",
-                "text": "Turn strategy into practical businesses, products and experiences."
+                "text": "Put the right operators, creatives,\npartners and communities around\nthe idea."
+            },
+            {
+                "title": "Execute",
+                "text": "Turn the concept into a real\nexperience with structure,\nshowflow and attention to detail"
             },
             {
                 "title": "Grow",
-                "text": "Develop ventures with a long-term view of value creation."
+                "text": "Build repeatability, partnerships\nand a community that wants to\ncome back"
             }
         ]
     },
