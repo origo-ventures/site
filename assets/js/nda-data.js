@@ -28,12 +28,6 @@ window.ORIGO_NDA = {
             "link": ""
         },
         {
-            "name": "Recess",
-            "tagline": "",
-            "image": "",
-            "link": ""
-        },
-        {
             "name": "Moonwater",
             "tagline": "",
             "image": "",
@@ -49,12 +43,6 @@ window.ORIGO_NDA = {
             "name": "Dance in The Park",
             "tagline": "",
             "image": "",
-            "link": ""
-        },
-        {
-            "name": "Afters",
-            "tagline": "A Thursday-night social built around music, people and an easy reason to stay out a little longer.",
-            "image": "assets/images/nda/afters__pmv6g9i17a5q.png",
             "link": ""
         },
         {
