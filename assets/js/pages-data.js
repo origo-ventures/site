@@ -6,23 +6,26 @@
 window.ORIGO_PAGES = [
     {
         "title": "Partner Events",
-        "slug": "partner-events-html",
+        "slug": "partner",
         "eyebrow": "Social Gathering",
         "lead": "Come join & be a part of us.",
         "showInMenu": true,
         "published": true,
         "blocks": [
             {
-                "type": "cards",
+                "type": "image",
                 "heading": "Afters Club",
                 "body": [],
-                "cards": []
+                "cards": [],
+                "caption": "Afters Club",
+                "image": "assets/images/pages/afters-club__pmv9gi5h9g5z.png"
             },
             {
-                "type": "cards",
+                "type": "image",
                 "heading": "Recess",
                 "body": [],
-                "cards": []
+                "cards": [],
+                "caption": "Recess"
             }
         ]
     }
