@@ -65,13 +65,13 @@ window.ORIGO_COMPANIES = [
         "buttonText": "Visit Website"
     },
     {
-        "name": "Company Four",
+        "name": "Bheja Fry",
         "image": "",
         "imageFit": "cover",
         "tags": [
-            "Category",
-            "Sector",
-            "Region"
+            "Food",
+            "Restaurant",
+            "Café"
         ],
         "highlight": {
             "label": "Focus",
