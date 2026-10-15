@@ -8,6 +8,17 @@
 <title>Contact | Origo Ventures</title>
 <link rel="preload" href="assets/fonts/Origo.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="stylesheet" href="assets/css/style.css">
+<style>
+/* contact form (self-contained so only contact.html needs uploading) */
+.hp-field{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+.form-status{margin:0;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+.form-status:empty{display:none}
+.form-status.ok{color:#7fd39a}
+.form-status.err{color:#ff8a85}
+.form-status a{color:inherit;text-decoration:underline}
+.contact-form .btn[disabled]{opacity:.6;cursor:wait}
+.field input:invalid:not(:placeholder-shown):not(:focus){border-color:#ff8a85}
+</style>
 </head>
 <body>
 <header class="site-header">
@@ -30,13 +41,15 @@
     <div class="contact-block"><span>Phone</span><p data-site="contact.phone">+880 1719221497</p></div>
     <div class="contact-block"><span>Location</span><p data-site="contact.address">Dhaka, Bangladesh</p></div>
   </div>
-  <form class="contact-form" data-contact-form>
-    <div class="field"><label for="name">Name</label><input id="name" name="name" required></div>
-    <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required></div>
-    <div class="field"><label for="subject">Subject</label><input id="subject" name="subject"></div>
-    <div class="field"><label for="message">Message</label><textarea id="message" name="message" rows="6" required></textarea></div>
-    <button class="btn" type="submit">Send Enquiry</button>
-    <p data-form-message hidden style="color:#aaa;font-size:13px">Thank you. Your message has been prepared.</p>
+  <form class="contact-form" id="contactForm" novalidate>
+    <div class="hp-field" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+    <div class="field"><label for="name">Full Name *</label><input id="name" name="name" type="text" required maxlength="150" autocomplete="name" placeholder="Enter your name"></div>
+    <div class="field"><label for="email">Email Address *</label><input id="email" name="email" type="email" required maxlength="254" autocomplete="email" placeholder="you@example.com"></div>
+    <div class="field"><label for="phone">Phone Number</label><input id="phone" name="phone" type="tel" maxlength="40" autocomplete="tel" placeholder="+880..."></div>
+    <div class="field"><label for="subject">Subject</label><input id="subject" name="subject" type="text" maxlength="200" placeholder="How can we help?"></div>
+    <div class="field"><label for="message">Your Message *</label><textarea id="message" name="message" rows="6" required maxlength="5000" placeholder="Write your message here..."></textarea></div>
+    <button class="btn" id="submitBtn" type="submit">Send Enquiry</button>
+    <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
   </form>
 </div></section>
 <section class="section reveal" id="map-wrap" style="border-top:1px solid var(--line)" hidden><div class="container">
@@ -64,5 +77,61 @@
 <script src="assets/js/pages-data.js"></script>
 <script src="assets/js/content.js"></script>
 <script src="assets/js/script.js"></script>
+<script>
+(function () {
+  /* Google Apps Script web app that saves the message to the Sheet and emails the team */
+  var ENDPOINT = "https://script.google.com/macros/s/AKfycbzoj5peLayxatqFkpRgAxdD6k5Wxx4bup7elF22f8wmdB6uwUiKmYBancBwWP5iUk96/exec";
+  var C = (window.ORIGO_SITE && window.ORIGO_SITE.contact) || {};
+  var MAIL = C.email || "contact.origoventures@gmail.com";
+  var PHONE = C.phone || "";
+
+  var form = document.getElementById("contactForm");
+  var btn = document.getElementById("submitBtn");
+  var box = document.getElementById("formStatus");
+  if (!form) return;
+
+  function say(text, type, html) {
+    if (html) box.innerHTML = text; else box.textContent = text;
+    box.className = "form-status" + (type ? " " + type : "");
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function fallback() {
+    return "We could not confirm that your message was delivered. Please try again, or contact us directly at " +
+      '<a href="mailto:' + esc(MAIL) + '">' + esc(MAIL) + "</a>" +
+      (PHONE ? " or " + '<a href="tel:' + esc(PHONE.replace(/[^\d+]/g, "")) + '">' + esc(PHONE) + "</a>" : "") + ".";
+  }
+  function done() { btn.disabled = false; btn.textContent = "Send Enquiry"; }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+
+    var data = {};
+    new FormData(form).forEach(function (v, k) { data[k] = v; });
+
+    btn.disabled = true; btn.textContent = "Sending...";
+    say("Please wait while we send your message.", "");
+
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 30000);
+
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },  /* plain text = no CORS pre-flight */
+      body: JSON.stringify(data),
+      signal: ctrl ? ctrl.signal : undefined
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        clearTimeout(timer);
+        if (res && res.success === true) { form.reset(); say(res.message || "Thank you! Your message has been sent.", "ok"); }
+        else if (res && res.success === false) { say(res.message || "Your message could not be sent.", "err"); }
+        else { say(fallback(), "err", true); }
+        done();
+      })
+      .catch(function () { clearTimeout(timer); say(fallback(), "err", true); done(); });
+  });
+})();
+</script>
 </body>
 </html>
