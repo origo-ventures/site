@@ -6,8 +6,8 @@
 
 window.ORIGO_CONTENT = {
     "home": {
-        "heroEyebrow": "Origo Ventures · Dhaka",
-        "heroTitle": "Strategy, Growth, Shared resources",
+        "heroEyebrow": "WELCOME TO",
+        "heroTitle": "Origo\nVentures",
         "heroLead": "The structure behind the work — strategy, growth, shared resources and execution across businesses and new ventures.",
         "heroBtn1": {
             "text": "Companies",
@@ -62,8 +62,8 @@ window.ORIGO_CONTENT = {
     },
     "about": {
         "eyebrow": "About",
-        "title": "Entrepreneur · Experience Curator · Community Builder",
-        "lead": "Origo Ventures Building businesses, communities and experiences around the things people\ncare about",
+        "title": "Know Us",
+        "lead": "Entrepreneur · Experience Curator · Community Builder\nOrigo Ventures Building businesses, communities and experiences around the things people care about.",
         "big": "We like building things people want to belong to.",
         "meta": [
             {
