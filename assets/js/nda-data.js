@@ -12,7 +12,7 @@ window.ORIGO_NDA = {
         {
             "name": "Clock End",
             "tagline": "",
-            "image": "assets/images/nda/clock-end__pmv7zsb56qor.png",
+            "image": "assets/images/nda/clock-end__pmv9epf8ptnv.png",
             "link": ""
         },
         {
