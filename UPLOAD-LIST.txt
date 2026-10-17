@@ -1,16 +1,17 @@
-CODE-ONLY UPDATE  (your content is NOT touched)
-================================================
-Upload these 5 files into your GitHub repo (same folders, replace when asked):
+CODE-ONLY UPDATE v6  (your content is NOT touched)
+==================================================
+Upload these 6 files to your GitHub repo (same folders, replace when asked):
 
-  origo-control.html                    (control panel: labelled Up/Down/Delete buttons, NDA logo field, brand title fixed)
-  events.html                           (NDA logo spot beside the NDA heading)
-  assets/js/events.js                   (shows the NDA logo; shows assets/images/nda/nda-logo.png by default)
-  assets/css/style.css                  (NDA logo styles)
-  assets/images/nda/nda-logo.png        (the NDA logo)
+  origo-control.html          (control panel: page wizard, block library, live preview, event projects)
+  events.html                 (Events page can now show several event projects)
+  page.html                   (extra pages: loads events + projects data)
+  assets/js/content.js        (draws every block type, projects, forms, maps)
+  assets/css/style.css        (styles for the new blocks)
+  assets/js/projects-data.js  (NEW, starts empty; only upload it if it does not exist in your repo yet.
+                               If you already created projects in the panel, DO NOT overwrite it.)
 
-Optional clean-up: delete the old file  event.html  from the repo (no longer used).
+DO NOT overwrite: assets/js/*-data.js (except the new projects-data.js above), assets/images/, CNAME,
+contact.html (you already have the latest one).
 
-DO NOT upload/overwrite: assets/js/*-data.js, assets/images/ photos you uploaded, CNAME.
-If you replace a file by mistake, restore it from the repo's History on GitHub.
-
-After the commit, wait 1-2 minutes and refresh with Ctrl+Shift+R.
+After the commit wait 1-2 minutes and refresh with Ctrl+Shift+R, then open origo-control.html
+and use: Extra pages > + Add Page, and Event projects > Import NDA.

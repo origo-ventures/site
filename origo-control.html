@@ -48,8 +48,12 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .group{border:1px dashed var(--line);border-radius:10px;padding:10px}
 .imgbox{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
-.pv{width:150px;height:112px;object-fit:cover;border:1px solid var(--line);border-radius:8px;background:#0f0f0f}
-.pv[hidden]{display:none}
+.pvframe{width:200px;height:150px;flex:0 0 auto;border:1px dashed #3a3a3a;border-radius:8px;background:#0f0f0f;overflow:hidden;display:grid;place-items:center}
+.pv{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.pv[hidden],.pvmsg[hidden]{display:none}
+.pvmsg{color:var(--muted);font-size:13px;padding:8px;text-align:center}
+.pvcap{color:#d6d6d0;font-size:13px;word-break:break-all}
+@media (max-width:560px){.pvframe{width:100%;height:210px}}
 .imgctl{flex:1;min-width:200px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 .chk{display:flex;gap:8px;align-items:center;font-size:14px;color:#d6d6d0}
 .chk input{width:20px;height:20px}
@@ -67,6 +71,31 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
 .addrow{margin:2px 0 16px}
 .nested{margin-top:4px}
 @media (min-width:760px){.cards{grid-template-columns:repeat(3,1fr)}.rbody{grid-template-columns:1fr 1fr}.fld.full{grid-column:1/-1}}
+
+.ic{width:100%;height:100%;display:block}
+.ic .f{fill:#55554f}.ic .a{fill:#b07a4b}.ic .l{fill:#8a8a84}.ic .s{stroke:#77776f;fill:none;stroke-width:1.5}
+.ricon{width:46px;height:32px;flex:0 0 auto;background:#0f0f0f;border:1px solid var(--line);border-radius:6px;padding:2px}
+.rbtns .pvbtn{color:#f0c27a;border-color:#5b4a2b;background:#241d10}
+.ov{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.86);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:16px}
+.ovbox{background:#121212;border:1px solid var(--line);border-radius:14px;width:100%;max-width:760px;margin:auto 0}
+.ovbox.wide{max-width:1180px}
+.ovhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ovbody{padding:14px}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tile{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--text);cursor:pointer;font:inherit}
+.tile:hover,.tile.on{border-color:var(--accent);background:#1b1612}
+.tile .tic{height:64px;background:#0b0b0b;border-radius:6px;padding:4px;border:1px solid #222}
+.tile b{font-size:14px}.tile span{font-size:12px;color:var(--muted)}
+.tthumb{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;background:#0b0b0b;border:1px solid #222;border-radius:6px;padding:4px;min-height:64px;align-content:start}
+.tthumb .ic{height:28px}
+.tthumb.empty{display:grid;place-items:center;color:var(--muted);font-size:12px}
+.wiz .fld{margin-bottom:12px}
+.pvbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pvstage{background:#050505;border-radius:10px;padding:10px;display:flex;justify-content:center}
+.pvstage iframe{border:1px solid var(--line);border-radius:8px;background:#080808;height:78vh;width:100%}
+.pvstage.mob iframe{width:390px;max-width:100%}
+.pill.on2{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (min-width:760px){.tiles{grid-template-columns:repeat(4,1fr)}.tiles.t3{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
@@ -126,11 +155,31 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
     if (!r.ok) { var err = new Error(friendly(r.status, j, path)); err.status = r.status; throw err; }
     return j;
   }
+  /* preview: always read the CURRENT file from the repo (not the live site), so it is never stale */
+  var blobCache = {};
+  function repoImage(path) {
+    if (S.preview[path]) return Promise.resolve(S.preview[path]);
+    if (blobCache[path]) return blobCache[path];
+    var pr = fetch(ghUrl(path) + '?ref=' + encodeURIComponent(CFG.branch), { headers: headers({ 'Accept': 'application/vnd.github.raw+json' }), cache: 'no-store' })
+      .then(function (r) { if (!r.ok) { var e = new Error('missing'); e.status = r.status; throw e; } return r.blob(); })
+      .then(function (b) { return URL.createObjectURL(b); });
+    blobCache[path] = pr;
+    pr.catch(function () { delete blobCache[path]; });
+    return pr;
+  }
   async function loadFile(name) {
     var path = 'assets/js/' + name;
     if (S.files[path]) return S.files[path];
     var sec = SECTIONS.filter(function (s) { return s.file === name; })[0];
-    var j = await gh('GET', path);
+    var j;
+    try { j = await gh('GET', path); }
+    catch (er) {
+      if (er.status === 404 && sec.optional) {
+        var nf = { path: path, sha: undefined, header: '/* Managed by the control panel. Keep VALID JSON if you edit by hand. */\n\n', varName: sec.varName, data: (sec.kind === 'list' ? [] : {}), isNew: true };
+        nf.origImgs = {}; S.files[path] = nf; return nf;
+      }
+      throw er;
+    }
     var text;
     if (j.content) text = b64dec(j.content);
     else { var r = await fetch(ghUrl(path) + '?ref=' + encodeURIComponent(CFG.branch), { headers: headers({ 'Accept': 'application/vnd.github.raw+json' }), cache: 'no-store' }); text = await r.text(); }
@@ -172,18 +221,206 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
   var BTN = function (key, label) { return { key: key, label: label, type: 'group', fields: [{ key: 'text', label: 'Button text', type: 'text' }, { key: 'link', label: 'Link (page or https://…)', type: 'url' }] }; };
   var TITLE_HINT = 'New line = line break. Put *stars* around a word to make it outlined/accent colour.';
 
-  var BLOCK_TYPES = { text: 'Text', image: 'Single image', gallery: 'Image gallery', cards: 'Cards', video: 'YouTube video', button: 'Button' };
-  function blockTitle(b) { return (BLOCK_TYPES[b.type] || 'Block') + (b.heading ? ' — ' + b.heading : (b.text ? ' — ' + b.text : (b.caption ? ' — ' + b.caption : ''))); }
+  /* ---------------------------------------------------------------- block library */
+  var ICON = {
+    hero: '<rect class="f" x="2" y="2" width="60" height="40" rx="3" opacity=".4"/><rect class="a" x="8" y="12" width="32" height="6"/><rect class="l" x="8" y="22" width="24" height="3"/><rect class="a" x="8" y="30" width="14" height="6" rx="1"/>',
+    text: '<rect class="a" x="8" y="6" width="26" height="5"/><rect class="l" x="8" y="16" width="48" height="3"/><rect class="l" x="8" y="23" width="44" height="3"/><rect class="l" x="8" y="30" width="48" height="3"/><rect class="l" x="8" y="37" width="30" height="3"/>',
+    imagetext: '<rect class="f" x="4" y="6" width="26" height="32" rx="2"/><circle class="l" cx="12" cy="15" r="3"/><rect class="a" x="36" y="9" width="22" height="5"/><rect class="l" x="36" y="19" width="24" height="3"/><rect class="l" x="36" y="26" width="20" height="3"/><rect class="a" x="36" y="33" width="12" height="5" rx="1"/>',
+    rows: '<rect class="f" x="3" y="3" width="24" height="16" rx="2"/><rect class="a" x="32" y="6" width="22" height="4"/><rect class="l" x="32" y="13" width="26" height="3"/><rect class="f" x="37" y="25" width="24" height="16" rx="2"/><rect class="a" x="6" y="28" width="22" height="4"/><rect class="l" x="6" y="35" width="26" height="3"/>',
+    cards: '<rect class="f" x="3" y="8" width="18" height="28" rx="2"/><rect class="f" x="23" y="8" width="18" height="28" rx="2"/><rect class="f" x="43" y="8" width="18" height="28" rx="2"/><rect class="a" x="6" y="12" width="8" height="3"/><rect class="a" x="26" y="12" width="8" height="3"/><rect class="a" x="46" y="12" width="8" height="3"/><rect class="l" x="6" y="22" width="12" height="2"/><rect class="l" x="26" y="22" width="12" height="2"/><rect class="l" x="46" y="22" width="12" height="2"/>',
+    stats: '<rect class="s" x="2" y="10" width="60" height="24" rx="2"/><rect class="a" x="7" y="16" width="8" height="8"/><rect class="a" x="21" y="16" width="8" height="8"/><rect class="a" x="35" y="16" width="8" height="8"/><rect class="a" x="49" y="16" width="8" height="8"/><rect class="l" x="7" y="27" width="9" height="2"/><rect class="l" x="21" y="27" width="9" height="2"/><rect class="l" x="35" y="27" width="9" height="2"/><rect class="l" x="49" y="27" width="9" height="2"/>',
+    gallery: '<rect class="f" x="3" y="4" width="18" height="16" rx="2"/><rect class="f" x="23" y="4" width="18" height="16" rx="2"/><rect class="f" x="43" y="4" width="18" height="16" rx="2"/><rect class="f" x="3" y="24" width="18" height="16" rx="2"/><rect class="f" x="23" y="24" width="18" height="16" rx="2"/><rect class="f" x="43" y="24" width="18" height="16" rx="2"/>',
+    image: '<rect class="f" x="4" y="4" width="56" height="36" rx="3"/><circle class="l" cx="18" cy="15" r="4"/><polygon class="l" points="8,36 24,22 34,31 44,20 58,36"/>',
+    video: '<rect class="f" x="4" y="4" width="56" height="36" rx="3"/><polygon class="a" points="27,14 27,30 41,22"/>',
+    quote: '<circle class="a" cx="24" cy="10" r="4"/><circle class="a" cx="34" cy="10" r="4"/><rect class="l" x="10" y="20" width="44" height="3"/><rect class="l" x="16" y="27" width="32" height="3"/><rect class="f" x="24" y="35" width="16" height="3"/>',
+    faq: '<rect class="f" x="6" y="6" width="52" height="8" rx="2"/><rect class="f" x="6" y="18" width="52" height="8" rx="2"/><rect class="f" x="6" y="30" width="52" height="8" rx="2"/><rect class="a" x="50" y="9" width="5" height="2"/><rect class="a" x="50" y="21" width="5" height="2"/><rect class="a" x="50" y="33" width="5" height="2"/>',
+    steps: '<circle class="a" cx="10" cy="9" r="5"/><rect class="l" x="20" y="7" width="34" height="4"/><circle class="a" cx="10" cy="22" r="5"/><rect class="l" x="20" y="20" width="30" height="4"/><circle class="a" cx="10" cy="35" r="5"/><rect class="l" x="20" y="33" width="36" height="4"/>',
+    team: '<circle class="f" cx="12" cy="16" r="8"/><circle class="f" cx="32" cy="16" r="8"/><circle class="f" cx="52" cy="16" r="8"/><rect class="l" x="5" y="30" width="14" height="3"/><rect class="l" x="25" y="30" width="14" height="3"/><rect class="l" x="45" y="30" width="14" height="3"/><rect class="f" x="7" y="36" width="10" height="2"/><rect class="f" x="27" y="36" width="10" height="2"/><rect class="f" x="47" y="36" width="10" height="2"/>',
+    logos: '<rect class="l" x="3" y="16" width="12" height="12" rx="2"/><rect class="l" x="18" y="16" width="12" height="12" rx="2"/><rect class="l" x="33" y="16" width="12" height="12" rx="2"/><rect class="l" x="48" y="16" width="12" height="12" rx="2"/>',
+    map: '<rect class="f" x="3" y="4" width="58" height="36" rx="3"/><path class="s" d="M3 28 L22 18 L40 30 L61 14"/><circle class="a" cx="32" cy="18" r="5"/><polygon class="a" points="28,21 36,21 32,30"/>',
+    form: '<rect class="s" x="8" y="5" width="48" height="7" rx="1"/><rect class="s" x="8" y="15" width="48" height="7" rx="1"/><rect class="s" x="8" y="25" width="48" height="7" rx="1"/><rect class="a" x="8" y="35" width="20" height="6" rx="1"/>',
+    button: '<rect class="a" x="14" y="13" width="36" height="18" rx="3"/><rect class="l" x="23" y="21" width="18" height="3"/>',
+    cta: '<rect class="a" x="10" y="7" width="44" height="7"/><rect class="l" x="16" y="19" width="32" height="3"/><rect class="a" x="12" y="30" width="18" height="7" rx="1"/><rect class="s" x="34" y="30" width="18" height="7" rx="1"/>',
+    divider: '<rect class="l" x="4" y="21" width="56" height="2"/><rect class="f" x="26" y="9" width="12" height="2"/><rect class="f" x="26" y="33" width="12" height="2"/>',
+    events: '<rect class="f" x="3" y="6" width="18" height="32" rx="2"/><rect class="f" x="23" y="6" width="18" height="32" rx="2"/><rect class="f" x="43" y="6" width="18" height="32" rx="2"/><rect class="a" x="6" y="22" width="12" height="3"/><rect class="a" x="26" y="22" width="12" height="3"/><rect class="a" x="46" y="22" width="12" height="3"/><rect class="l" x="6" y="29" width="9" height="2"/><rect class="l" x="26" y="29" width="9" height="2"/><rect class="l" x="46" y="29" width="9" height="2"/>',
+    project: '<rect class="a" x="4" y="4" width="22" height="5"/><rect class="f" x="4" y="14" width="18" height="12" rx="2"/><rect class="f" x="23" y="14" width="18" height="12" rx="2"/><rect class="f" x="42" y="14" width="18" height="12" rx="2"/><rect class="f" x="4" y="29" width="18" height="12" rx="2"/><rect class="f" x="23" y="29" width="18" height="12" rx="2"/><rect class="f" x="42" y="29" width="18" height="12" rx="2"/>'
+  };
+  function icon(t) { return '<svg class="ic" viewBox="0 0 64 44" aria-hidden="true">' + (ICON[t] || ICON.text) + '</svg>'; }
+
+  var HEADING = { key: 'heading', label: 'Heading (optional)', type: 'title', hint: TITLE_HINT };
+  var COLS = { key: 'cols', label: 'Columns on desktop', type: 'select', options: { c2: '2 columns', c3: '3 columns', c4: '4 columns' } };
+  var STYLE_FIELDS = [
+    { key: 'bg', label: 'Background', type: 'select', options: { dark: 'Dark (default)', light: 'Slightly lighter', accent: 'Brown tint' } },
+    { key: 'align', label: 'Alignment', type: 'select', options: { left: 'Left', center: 'Centered' } },
+    { key: 'space', label: 'Spacing above/below', type: 'select', options: { normal: 'Normal', compact: 'Compact', large: 'Large' } }
+  ];
+  var st = function (o) { o.bg = 'dark'; o.align = 'left'; o.space = 'normal'; return o; };
+  function projectOptions() {
+    var f = S.files['assets/js/projects-data.js'], o = {};
+    if (f && Array.isArray(f.data)) f.data.forEach(function (p) { if (p && p.title) o[slugify(p.id || p.title)] = p.title; });
+    if (!Object.keys(o).length) o[''] = '(no event projects yet — create one under "Event projects")';
+    return o;
+  }
+  var BLK = {
+    hero: { label: 'Hero banner', desc: 'Big title, text, buttons, optional background photo', style: false,
+      fields: function () { return [{ key: 'eyebrow', label: 'Small label above the title', type: 'text' }, { key: 'title', label: 'Big title', type: 'title', hint: TITLE_HINT }, { key: 'text', label: 'Intro text', type: 'textarea', rows: 3 }, BTN('btn1', 'Button 1'), BTN('btn2', 'Button 2'), { key: 'image', label: 'Background photo (optional)', type: 'image' }, { key: 'align', label: 'Alignment', type: 'select', options: { left: 'Left', center: 'Centered' } }]; },
+      make: function () { return { type: 'hero', eyebrow: 'Small label', title: 'Big title\n*highlight*', text: 'Short introduction.', btn1: { text: 'Contact', link: 'contact.html' }, btn2: { text: '', link: '' }, image: '', align: 'left' }; } },
+    text: { label: 'Text', desc: 'Heading and paragraphs',
+      fields: function () { return [HEADING, { key: 'body', label: 'Text (blank line between paragraphs)', type: 'paras' }, { key: 'width', label: 'Text width', type: 'select', options: { narrow: 'Narrow (easy to read)', wide: 'Full width' } }]; },
+      make: function () { return st({ type: 'text', heading: 'Heading', body: ['Write your text here.'], width: 'narrow' }); } },
+    imagetext: { label: 'Image + text', desc: 'Photo beside text, with a button',
+      fields: function () { return [HEADING, { key: 'body', label: 'Text (blank line between paragraphs)', type: 'paras' }, { key: 'image', label: 'Photo', type: 'image' }, { key: 'imagePos', label: 'Photo position', type: 'select', options: { left: 'Left', right: 'Right' } }, BTN('button', 'Button (optional)')]; },
+      make: function () { return st({ type: 'imagetext', heading: 'Heading', body: ['Write your text here.'], image: '', imagePos: 'left', button: { text: '', link: '' } }); } },
+    rows: { label: 'Photo + text rows', desc: 'Alternating rows like the Companies page',
+      fields: function () { return [HEADING, { key: 'items', label: 'Rows', type: 'list', item: 'Row', tk: 'title', blank: { title: '', text: '', tags: [], image: '', buttonText: '', link: '' }, fields: [{ key: 'title', label: 'Title', type: 'text' }, { key: 'tags', label: 'Tags (comma separated)', type: 'tags' }, { key: 'text', label: 'Text (blank line between paragraphs)', type: 'textarea', rows: 4 }, { key: 'image', label: 'Photo / logo', type: 'image' }, { key: 'buttonText', label: 'Button text (optional)', type: 'text' }, { key: 'link', label: 'Button link', type: 'url' }] }]; },
+      make: function () { return st({ type: 'rows', heading: '', items: [{ title: 'First item', text: 'Describe it here.', tags: ['Tag'], image: '', buttonText: 'Learn more', link: '#' }, { title: 'Second item', text: 'Describe it here.', tags: [], image: '', buttonText: '', link: '' }] }); } },
+    cards: { label: 'Cards', desc: 'Grid of 2, 3 or 4 cards',
+      fields: function () { return [HEADING, COLS, { key: 'numbers', label: 'Show numbers (01, 02…)', type: 'bool', def: true }, { key: 'cards', label: 'Cards', type: 'list', item: 'Card', tk: 'title', blank: { title: '', text: '', image: '', link: '' }, fields: [{ key: 'title', label: 'Card title', type: 'text' }, { key: 'text', label: 'Card text', type: 'textarea', rows: 3 }, { key: 'image', label: 'Photo (optional)', type: 'image' }, { key: 'link', label: 'Link (optional)', type: 'url' }] }]; },
+      make: function () { return st({ type: 'cards', heading: 'Heading', cols: 'c3', numbers: true, cards: [{ title: 'First', text: 'Short text.', image: '', link: '' }, { title: 'Second', text: 'Short text.', image: '', link: '' }, { title: 'Third', text: 'Short text.', image: '', link: '' }] }); } },
+    stats: { label: 'Numbers strip', desc: 'Big numbers with small labels', style: false,
+      fields: function () { return [{ key: 'items', label: 'Numbers', type: 'list', item: 'Number', titleFn: function (s) { return (s.value || '') + ' ' + (s.label || ''); }, blank: { value: '', label: '' }, fields: [{ key: 'value', label: 'Big value', type: 'text' }, { key: 'label', label: 'Small label', type: 'text' }] }]; },
+      make: function () { return { type: 'stats', items: [{ value: '10+', label: 'Years' }, { value: '50', label: 'Projects' }, { value: '3', label: 'Cities' }] }; } },
+    gallery: { label: 'Photo gallery', desc: 'Grid of photos with captions',
+      fields: function () { return [HEADING, COLS, { key: 'images', label: 'Photos', type: 'list', item: 'Photo', titleFn: function (g) { return g.caption || (g.image ? 'Photo' : 'New photo'); }, blank: { image: '', caption: '' }, fields: [{ key: 'image', label: 'Photo', type: 'image' }, { key: 'caption', label: 'Caption (optional)', type: 'text' }] }]; },
+      make: function () { return st({ type: 'gallery', heading: 'Gallery', cols: 'c3', images: [{ image: '', caption: '' }, { image: '', caption: '' }, { image: '', caption: '' }] }); } },
+    image: { label: 'Single image', desc: 'One large photo with caption',
+      fields: function () { return [{ key: 'image', label: 'Photo', type: 'image' }, { key: 'caption', label: 'Caption (optional)', type: 'text' }, { key: 'size', label: 'Size', type: 'select', options: { full: 'Full width', narrow: 'Narrow' } }]; },
+      make: function () { return st({ type: 'image', image: '', caption: '', size: 'full' }); } },
+    video: { label: 'YouTube video', desc: 'Embedded video with a heading',
+      fields: function () { return [HEADING, { key: 'url', label: 'YouTube link', type: 'url' }]; },
+      make: function () { return st({ type: 'video', heading: '', url: '' }); } },
+    quote: { label: 'Quote', desc: 'Big testimonial / quote',
+      fields: function () { return [{ key: 'text', label: 'Quote', type: 'textarea', rows: 3 }, { key: 'name', label: 'Name', type: 'text' }, { key: 'role', label: 'Role / company', type: 'text' }]; },
+      make: function () { return st({ type: 'quote', text: 'Write the quote here.', name: 'Name', role: 'Role', align: 'center' }); } },
+    faq: { label: 'FAQ', desc: 'Questions that open and close',
+      fields: function () { return [HEADING, { key: 'items', label: 'Questions', type: 'list', item: 'Question', titleFn: function (q) { return q.q || 'New question'; }, blank: { q: '', a: '' }, fields: [{ key: 'q', label: 'Question', type: 'text' }, { key: 'a', label: 'Answer', type: 'textarea', rows: 3 }] }]; },
+      make: function () { return st({ type: 'faq', heading: 'Questions', items: [{ q: 'First question?', a: 'Answer here.' }, { q: 'Second question?', a: 'Answer here.' }] }); } },
+    steps: { label: 'Steps / process', desc: 'Numbered steps',
+      fields: function () { return [HEADING, { key: 'items', label: 'Steps', type: 'list', item: 'Step', tk: 'title', blank: { title: '', text: '' }, fields: [{ key: 'title', label: 'Step title', type: 'text' }, { key: 'text', label: 'Step text', type: 'textarea', rows: 3 }] }]; },
+      make: function () { return st({ type: 'steps', heading: 'How it works', items: [{ title: 'First step', text: 'Explain it.' }, { title: 'Second step', text: 'Explain it.' }, { title: 'Third step', text: 'Explain it.' }] }); } },
+    team: { label: 'Team', desc: 'People with photo, name and role',
+      fields: function () { return [HEADING, COLS, { key: 'members', label: 'People', type: 'list', item: 'Person', tk: 'name', blank: { name: '', role: '', photo: '', link: '' }, fields: [{ key: 'name', label: 'Name', type: 'text' }, { key: 'role', label: 'Role', type: 'text' }, { key: 'photo', label: 'Photo', type: 'image' }, { key: 'link', label: 'Link (optional)', type: 'url' }] }]; },
+      make: function () { return st({ type: 'team', heading: 'Our team', cols: 'c3', members: [{ name: 'Name', role: 'Role', photo: '', link: '' }, { name: 'Name', role: 'Role', photo: '', link: '' }, { name: 'Name', role: 'Role', photo: '', link: '' }] }); } },
+    logos: { label: 'Partner logos', desc: 'A row of logos',
+      fields: function () { return [HEADING, { key: 'items', label: 'Logos', type: 'list', item: 'Logo', titleFn: function (l) { return l.name || (l.image ? 'Logo' : 'New logo'); }, blank: { image: '', name: '', link: '' }, fields: [{ key: 'image', label: 'Logo image', type: 'image' }, { key: 'name', label: 'Name', type: 'text' }, { key: 'link', label: 'Link (optional)', type: 'url' }] }]; },
+      make: function () { return st({ type: 'logos', heading: 'Partners', items: [{ image: '', name: '', link: '' }] }); } },
+    map: { label: 'Google map', desc: 'Office location map',
+      fields: function () { return [HEADING, { key: 'query', label: 'Location (address) or Google "Embed a map" code', type: 'textarea', rows: 3, hint: 'Empty = use the office location from Contact info.' }, { key: 'link', label: 'Google Maps share link (optional)', type: 'url' }]; },
+      make: function () { return st({ type: 'map', heading: 'Find us', query: '', link: '' }); } },
+    form: { label: 'Contact form', desc: 'Message form that emails you',
+      fields: function () { return [HEADING, { key: 'text', label: 'Short text above the form', type: 'textarea', rows: 2 }, { key: 'button', label: 'Button text', type: 'text', ph: 'Send Message' }]; },
+      make: function () { return st({ type: 'form', heading: 'Write to us', text: 'Tell us what you need and we will reply.', button: 'Send Message' }); } },
+    button: { label: 'Button', desc: 'A single button link',
+      fields: function () { return [{ key: 'text', label: 'Button text', type: 'text' }, { key: 'link', label: 'Link (page or https://…)', type: 'url' }, { key: 'style', label: 'Style', type: 'select', options: { primary: 'Solid', ghost: 'Outline' } }]; },
+      make: function () { return st({ type: 'button', text: 'Contact us', link: 'contact.html', style: 'primary' }); } },
+    cta: { label: 'Call-to-action', desc: 'Big closing block with buttons', style: false,
+      fields: function () { return [{ key: 'title', label: 'Title (empty = use the shared one)', type: 'title', hint: TITLE_HINT }, { key: 'text', label: 'Paragraph', type: 'textarea', rows: 3 }, BTN('btn1', 'Button 1'), BTN('btn2', 'Button 2')]; },
+      make: function () { return { type: 'cta', title: '', text: '', btn1: { text: '', link: '' }, btn2: { text: '', link: '' } }; } },
+    divider: { label: 'Divider / space', desc: 'A line or empty space', style: false,
+      fields: function () { return [{ key: 'line', label: 'Type', type: 'select', options: { line: 'Line', space: 'Empty space' } }, { key: 'size', label: 'Size', type: 'select', options: { sm: 'Small', md: 'Medium', lg: 'Large' } }]; },
+      make: function () { return { type: 'divider', line: 'line', size: 'md' }; } },
+    events: { label: 'Events list', desc: 'Show current / upcoming events',
+      fields: function () { return [HEADING, { key: 'mode', label: 'Which events', type: 'select', options: { upcoming: 'Upcoming events', current: 'Current event only', all: 'All events' } }, { key: 'limit', label: 'Max number (empty = all)', type: 'text' }]; },
+      make: function () { return st({ type: 'events', heading: 'Events', mode: 'upcoming', limit: '' }); } },
+    project: { label: 'Event project', desc: 'Show an NDA / Collab project section',
+      fields: function () { return [{ key: 'project', label: 'Which project', type: 'select', options: projectOptions() }]; },
+      make: function () { return st({ type: 'project', project: '' }); } }
+  };
+  var TYPE_OPTIONS = {}; Object.keys(BLK).forEach(function (k) { TYPE_OPTIONS[k] = BLK[k].label; });
+  function mk(t) { return BLK[t].make(); }
+  function blockTitle(b) { var d = BLK[b.type]; return (d ? d.label : 'Block') + (b.heading ? ' — ' + String(b.heading).replace(/\n/g, ' ') : (b.title ? ' — ' + String(b.title).replace(/\n/g, ' ') : (b.text ? ' — ' + String(b.text).slice(0, 40) : (b.caption ? ' — ' + b.caption : '')))); }
   function blockFields(b) {
-    var f = [{ key: 'type', label: 'Block type', type: 'select', options: BLOCK_TYPES, rerender: true }];
-    var t = b.type || 'text';
-    if (t === 'text') f.push({ key: 'heading', label: 'Heading (optional)', type: 'title', hint: TITLE_HINT }, { key: 'body', label: 'Text (blank line between paragraphs)', type: 'paras' });
-    if (t === 'image') f.push({ key: 'image', label: 'Image', type: 'image' }, { key: 'caption', label: 'Caption (optional)', type: 'text' });
-    if (t === 'gallery') f.push({ key: 'heading', label: 'Heading (optional)', type: 'title', hint: TITLE_HINT }, { key: 'images', label: 'Images', type: 'list', item: 'Image', titleFn: function (g) { return g.caption || (g.image ? 'Image' : 'New image'); }, fields: [{ key: 'image', label: 'Image', type: 'image' }, { key: 'caption', label: 'Caption (optional)', type: 'text' }] });
-    if (t === 'cards') f.push({ key: 'heading', label: 'Heading (optional)', type: 'title', hint: TITLE_HINT }, { key: 'cards', label: 'Cards', type: 'list', item: 'Card', tk: 'title', fields: [{ key: 'title', label: 'Card title', type: 'text' }, { key: 'text', label: 'Card text', type: 'textarea', rows: 3 }] });
-    if (t === 'video') f.push({ key: 'heading', label: 'Heading (optional)', type: 'title', hint: TITLE_HINT }, { key: 'url', label: 'YouTube link', type: 'url' });
-    if (t === 'button') f.push({ key: 'text', label: 'Button text', type: 'text' }, { key: 'link', label: 'Link (page or https://…)', type: 'url' }, { key: 'style', label: 'Style', type: 'select', options: { primary: 'Solid', ghost: 'Outline' } });
-    return f;
+    var d = BLK[b.type || 'text'] || BLK.text;
+    var f = [{ key: 'type', label: 'Block type', type: 'select', options: TYPE_OPTIONS, rerender: true }].concat(d.fields(b));
+    return d.style === false ? f : f.concat(STYLE_FIELDS);
+  }
+
+  /* ---------------------------------------------------------------- modal, block picker, page wizard, preview */
+  function modal(titleText, content, wide) {
+    var ov = el('div', { class: 'ov' }), box = el('div', { class: 'ovbox' + (wide ? ' wide' : '') });
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    function close() { if (ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown', onKey); if (box._onClose) box._onClose(); }
+    document.addEventListener('keydown', onKey);
+    box.appendChild(el('div', { class: 'ovhead' }, [el('b', { text: titleText }), el('button', { type: 'button', class: 'tb', text: 'Close ✕', onclick: close })]));
+    box.appendChild(content); ov.appendChild(box);
+    ov.addEventListener('mousedown', function (e) { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+    return { close: close, box: box };
+  }
+  function openBlockPicker(onPick) {
+    var wrap = el('div', { class: 'ovbody' }, [el('p', { class: 'muted', text: 'Choose a block to add. You can change everything inside it afterwards.' })]);
+    var tiles = el('div', { class: 'tiles' });
+    var m;
+    Object.keys(BLK).forEach(function (k) {
+      tiles.appendChild(el('button', { type: 'button', class: 'tile', onclick: function () { m.close(); onPick(k); } }, [el('div', { class: 'tic', html: icon(k) }), el('b', { text: BLK[k].label }), el('span', { text: BLK[k].desc })]));
+    });
+    wrap.appendChild(tiles); m = modal('Add a block', wrap, true);
+  }
+  var TEMPLATES = [
+    { id: 'blank', name: 'Blank page', desc: 'Start empty, add blocks yourself', blocks: function () { return []; } },
+    { id: 'simple', name: 'Simple text page', desc: 'Heading, text and a button', blocks: function () { return [mk('text'), mk('button')]; } },
+    { id: 'about', name: 'About / story', desc: 'Photo + text, numbers, values', blocks: function () { return [mk('imagetext'), mk('stats'), mk('cards')]; } },
+    { id: 'companies', name: 'Photo + text rows', desc: 'Like the Companies page', blocks: function () { return [mk('rows')]; } },
+    { id: 'gallery', name: 'Gallery', desc: 'Intro text and a photo grid', blocks: function () { return [mk('text'), mk('gallery')]; } },
+    { id: 'team', name: 'Team', desc: 'Intro and people', blocks: function () { return [mk('text'), mk('team')]; } },
+    { id: 'landing', name: 'Landing page', desc: 'Hero, numbers, benefits, steps, FAQ', heroStyle: 'none', blocks: function () { return [mk('hero'), mk('stats'), mk('cards'), mk('steps'), mk('faq')]; } },
+    { id: 'contact', name: 'Contact page', desc: 'Text, contact form and map', blocks: function () { return [mk('text'), mk('form'), mk('map')]; } }
+  ];
+  function thumb(types) {
+    if (!types.length) return el('div', { class: 'tthumb empty', text: 'Empty' });
+    return el('div', { class: 'tthumb', html: types.slice(0, 6).map(function (t) { return icon(t); }).join('') });
+  }
+  function openWizard(done) {
+    var menu = el('input', { type: 'text', placeholder: 'e.g. Our Team', maxlength: '60' }), title = el('input', { type: 'text', placeholder: 'Big heading of the page', maxlength: '120' });
+    var link = el('small', { text: 'Page link: page.html?p=…' }), touched = false, chosen = 'simple', m;
+    function upd() { link.textContent = 'Page link: page.html?p=' + slugify(menu.value || title.value); }
+    menu.addEventListener('input', function () { if (!touched) title.value = menu.value; upd(); });
+    title.addEventListener('input', function () { touched = true; upd(); });
+    var tiles = el('div', { class: 'tiles t3' });
+    function drawTiles() {
+      tiles.innerHTML = '';
+      TEMPLATES.forEach(function (t) {
+        var types = t.blocks().map(function (b) { return b.type; });
+        var tile = el('button', { type: 'button', class: 'tile' + (chosen === t.id ? ' on' : ''), onclick: function () { chosen = t.id; drawTiles(); } }, [thumb(types), el('b', { text: t.name }), el('span', { text: t.desc })]);
+        tiles.appendChild(tile);
+      });
+    }
+    drawTiles();
+    var create = el('button', { type: 'button', class: 'btn', text: 'Create page', onclick: function () {
+      var mn = menu.value.trim(), ti = title.value.trim();
+      if (!mn && !ti) { alert('Please type a page name first.'); menu.focus(); return; }
+      var t = TEMPLATES.filter(function (x) { return x.id === chosen; })[0];
+      m.close();
+      done({ menuName: mn || ti, title: ti || mn, slug: '', eyebrow: '', lead: '', heroStyle: t.heroStyle || 'left', showInMenu: true, published: true, showCta: true, seoTitle: '', seoDescription: '', blocks: t.blocks() });
+    } });
+    var body = el('div', { class: 'ovbody wiz' }, [
+      el('div', { class: 'fld' }, [el('span', { class: 'l', text: '1. Page name (shown in the menu)' }), menu]),
+      el('div', { class: 'fld' }, [el('span', { class: 'l', text: 'Page title (big heading on the page)' }), title, link]),
+      el('div', { class: 'fld' }, [el('span', { class: 'l', text: '2. Choose a starting layout (you can change every block afterwards)' })]), tiles,
+      el('div', { style: 'margin-top:14px' }, [create])
+    ]);
+    m = modal('New page', body, true); upd(); menu.focus();
+  }
+  function openPreview(page) {
+    var frame = el('iframe', { src: 'page.html?p=__preview', title: 'Preview' });
+    var stage = el('div', { class: 'pvstage' }, [frame]);
+    var bDesk = el('button', { type: 'button', class: 'tb pill on2', text: '🖥 Desktop' }), bMob = el('button', { type: 'button', class: 'tb pill', text: '📱 Mobile' });
+    function mode(mob) { stage.className = 'pvstage' + (mob ? ' mob' : ''); bDesk.className = 'tb pill' + (mob ? '' : ' on2'); bMob.className = 'tb pill' + (mob ? ' on2' : ''); }
+    bDesk.addEventListener('click', function () { mode(false); }); bMob.addEventListener('click', function () { mode(true); });
+    var note2 = el('small', { class: 'muted', text: 'Preview of your unsaved changes. Buttons and forms are shown but not sent.' });
+    var wrap = el('div', { class: 'ovbody' }, [el('div', { class: 'pvbar' }, [bDesk, bMob, note2]), stage]);
+    function dataOf(path) { var f = S.files['assets/js/' + path]; return f ? f.data : null; }
+    function send() {
+      if (!frame.contentWindow) return;
+      var msg = { type: 'origo-preview', page: clone(page), images: S.preview, site: dataOf('site-data.js'), events: dataOf('events-data.js'), projects: dataOf('projects-data.js') };
+      Object.keys(msg).forEach(function (k) { if (msg[k] == null) delete msg[k]; });
+      frame.contentWindow.postMessage(msg, '*');
+    }
+    function onMsg(e) { if (e.source === frame.contentWindow && e.data && e.data.type === 'origo-preview-ready') send(); }
+    window.addEventListener('message', onMsg);
+    frame.addEventListener('load', function () { setTimeout(send, 150); });
+    var m = modal('Preview — ' + (page.menuName || page.title || 'page'), wrap, true);
+    m.box._onClose = function () { window.removeEventListener('message', onMsg); };
   }
 
   var SECTIONS = [
@@ -242,10 +479,21 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
         { key: 'description', label: 'Full description (optional)', type: 'paras' }, { key: 'tags', label: 'Tags (comma separated)', type: 'tags' },
         STATS, { key: 'image', label: 'Photo', type: 'image' }
       ] },
-    { id: 'nda', group: 'Content', title: 'NDA', file: 'nda-data.js', varName: 'ORIGO_NDA', kind: 'listobj', list: 'events', dir: 'nda', conv: 'assets/images/nda/nda-%02d.jpg', item: 'NDA event', tk: 'name',
-      intro: 'Never Dream Alone: the event blocks at the bottom of the Events page.',
-      head: [{ key: 'title', label: 'Section title', type: 'text' }, { key: 'subtitle', label: 'Small label above the title', type: 'text' }, { key: 'intro', label: 'Intro line', type: 'textarea', rows: 2 }, { key: 'logo', label: 'NDA logo (transparent PNG works best)', type: 'image' }],
+    { id: 'nda', group: 'Content', title: 'NDA (old)', file: 'nda-data.js', varName: 'ORIGO_NDA', kind: 'listobj', list: 'events', dir: 'nda', conv: 'assets/images/nda/nda-%02d.jpg', item: 'NDA event', tk: 'name',
+      intro: 'Old NDA section. Once you create "Event projects" (and import NDA there), that list is shown instead of this one.',
+      head: [{ key: 'title', label: 'Section title', type: 'text' }, { key: 'subtitle', label: 'Small label above the title', type: 'text' }, { key: 'intro', label: 'Intro line', type: 'textarea', rows: 2 }, { key: 'logo', label: 'NDA logo (transparent PNG works best)', type: 'image', auto: 'assets/images/nda/nda-logo.png' }],
       fields: [{ key: 'name', label: 'Event name', type: 'text' }, { key: 'tagline', label: 'Short line (optional)', type: 'text' }, { key: 'link', label: 'Link (optional, makes the block clickable)', type: 'url' }, { key: 'image', label: 'Photo', type: 'image' }] },
+    { id: 'projects', group: 'Content', title: 'Event projects', file: 'projects-data.js', varName: 'ORIGO_PROJECTS', kind: 'list', dir: 'projects', item: 'Project', tk: 'title', optional: true,
+      blank: { title: '', subtitle: '', intro: '', logo: '', cols: 'c3', numbers: true, events: [] },
+      intro: 'Projects like NDA or Collab. Each one is its own section on the Events page with its own logo, intro and event blocks.',
+      norm: function (arr) { var seen = {}; arr.forEach(function (p) { var s = slugify(p.id || p.title), b = s, c = 2; while (seen[s]) { s = b + '-' + c++; } seen[s] = 1; p.id = s; }); },
+      fields: [
+        { key: 'title', label: 'Project name (e.g. NDA, Collab)', type: 'text' }, { key: 'subtitle', label: 'Small label above the name', type: 'text' },
+        { key: 'intro', label: 'Intro line', type: 'textarea', rows: 2 }, { key: 'logo', label: 'Project logo (transparent PNG works best)', type: 'image' },
+        { key: 'cols', label: 'Columns on desktop', type: 'select', options: { c2: '2 columns', c3: '3 columns', c4: '4 columns' } },
+        { key: 'numbers', label: 'Show numbers (01, 02…)', type: 'bool', def: true },
+        { key: 'events', label: 'Event blocks', type: 'list', item: 'Event', tk: 'name', blank: { name: '', tagline: '', link: '', image: '' }, fields: [{ key: 'name', label: 'Event name', type: 'text' }, { key: 'tagline', label: 'Short line (optional)', type: 'text' }, { key: 'link', label: 'Link (optional, makes the block clickable)', type: 'url' }, { key: 'image', label: 'Photo', type: 'image' }] }
+      ] },
     { id: 'companies', group: 'Content', title: 'Companies', file: 'companies-data.js', varName: 'ORIGO_COMPANIES', kind: 'list', dir: 'companies', conv: 'assets/images/companies/company-%d.jpg', item: 'Company', tk: 'name',
       intro: 'Shown on the Companies page, in this order.',
       fields: [
@@ -267,18 +515,25 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
         { key: 'email', label: 'Email', type: 'text' }, { key: 'phone', label: 'Phone', type: 'text' }, { key: 'address', label: 'Location / address', type: 'text' }, { key: 'tagline', label: 'Footer sentence', type: 'text' },
         { key: 'mapQuery', label: 'Office location for the Google map', type: 'textarea', rows: 3, hint: 'Type the full office address (e.g. "House 12, Road 5, Motijheel, Dhaka"), OR paste the code from Google Maps > Share > Embed a map. Empty = no map.' },
         { key: 'mapLink', label: 'Google Maps share link (optional, for the "Open in Google Maps" button)', type: 'url' },
+        { key: 'formEndpoint', label: 'Contact form link (Google Apps Script /exec URL)', type: 'url', hint: 'Used by the contact form blocks on extra pages. Empty = the built-in link.' },
         { key: 'linkedin', label: 'LinkedIn link', type: 'url' }, { key: 'facebook', label: 'Facebook link', type: 'url' }, { key: 'instagram', label: 'Instagram link', type: 'url' }
       ] },
-    { id: 'pages', group: 'Extra pages', title: 'Extra pages', file: 'pages-data.js', varName: 'ORIGO_PAGES', kind: 'list', dir: 'pages', item: 'Page', tk: 'title',
-      blank: { title: '', slug: '', eyebrow: '', lead: '', showInMenu: true, published: true, blocks: [] },
-      intro: 'Create any new page (e.g. Team, Services, Gallery). Build it from blocks: text, images, cards, video, buttons. Each page opens at page.html?p=<link name>.',
-      norm: function (arr) { var seen = {}; arr.forEach(function (p) { var s = slugify(p.slug || p.title), b = s, c = 2; while (seen[s]) { s = b + '-' + c++; } seen[s] = 1; p.slug = s; }); },
+    { id: 'pages', group: 'Extra pages', title: 'Extra pages', file: 'pages-data.js', varName: 'ORIGO_PAGES', kind: 'list', dir: 'pages', item: 'Page', tk: 'title', optional: true,
+      intro: 'Create any new page. Press "+ Add Page", name it and choose a starting layout, then edit the blocks. Use Preview to see it before saving.',
+      onAdd: function (cb) { openWizard(cb); },
+      rowActions: [{ label: '👁 Preview', cls: 'pvbtn', fn: function (page) { openPreview(page); } }],
+      norm: function (arr) { var seen = {}; arr.forEach(function (p) { if (!p.menuName) p.menuName = p.title; var s = slugify(p.slug || p.menuName || p.title), b = s, c = 2; while (seen[s]) { s = b + '-' + c++; } seen[s] = 1; p.slug = s; }); },
       fields: [
-        { key: 'title', label: 'Page title (also the menu name)', type: 'text' },
-        { key: 'slug', label: 'Link name (letters, numbers, dashes)', type: 'text', hint: 'Leave empty to create it from the title. Page opens at page.html?p=<link name>' },
-        { key: 'eyebrow', label: 'Small label above the title', type: 'text' }, { key: 'lead', label: 'Intro paragraph', type: 'textarea', rows: 3 },
+        { key: 'menuName', label: 'Menu name (shown in the top menu and footer)', type: 'text' },
+        { key: 'title', label: 'Page title (big heading on the page)', type: 'title', hint: TITLE_HINT },
+        { key: 'slug', label: 'Page link name (letters, numbers, dashes)', type: 'text', hint: 'Page opens at page.html?p=<link name>. Leave empty to create it from the menu name.' },
+        { key: 'eyebrow', label: 'Small label above the title', type: 'text' }, { key: 'lead', label: 'Intro paragraph under the title', type: 'textarea', rows: 3 },
+        { key: 'heroStyle', label: 'Top of the page', type: 'select', options: { left: 'Title on the left', center: 'Title centered', none: 'No title banner (I will use a Hero block)' } },
         { key: 'showInMenu', label: 'Show in the menu and footer', type: 'bool' }, { key: 'published', label: 'Published (untick to hide this page)', type: 'bool', def: true },
-        { key: 'blocks', label: 'Page blocks (top to bottom)', type: 'list', item: 'Block', titleFn: blockTitle, fieldsFor: blockFields, blank: { type: 'text', heading: '', body: [] } }
+        { key: 'showCta', label: 'Show the shared call-to-action at the bottom', type: 'bool', def: true },
+        { key: 'seoTitle', label: 'Google title (optional)', type: 'text' }, { key: 'seoDescription', label: 'Google description (optional)', type: 'textarea', rows: 2 },
+        { key: 'blocks', label: 'Page blocks (top to bottom)', type: 'list', item: 'Block', titleFn: blockTitle, fieldsFor: blockFields, iconFn: function (b) { return icon(b.type || 'text'); },
+          onAdd: function (cb) { openBlockPicker(function (t) { cb(mk(t)); }); } }
       ] }
   ];
   function secById(id) { return SECTIONS.filter(function (s) { return s.id === id; })[0]; }
@@ -350,16 +605,29 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       }
     } else if (t === 'image') {
       w.appendChild(label(fd));
-      var pv = el('img', { class: 'pv', alt: '' }), note = el('small', { text: 'JPG, PNG or WebP. Big photos are resized automatically.' });
-      function curSrc() {
-        var p = obj[k] || '';
-        if (p) return S.preview[p] || p;
-        return (ctx.conv && ctx.index != null) ? ctx.conv.replace('%02d', String(ctx.index + 1).padStart(2, '0')).replace('%d', String(ctx.index + 1)) : '';
-      }
-      function paint() { var s = curSrc(); pv.hidden = !s; pv.style.visibility = 'visible'; if (s) pv.setAttribute('src', s); rm.hidden = !obj[k]; }
-      pv.addEventListener('error', function () { pv.style.visibility = 'hidden'; });
+      var pv = el('img', { class: 'pv', alt: '', title: 'Click to open full size' }), msg = el('span', { class: 'pvmsg', text: 'Loading…' });
+      var cap = el('small', { class: 'pvcap' }), seq = 0;
+      var frame = el('div', { class: 'pvframe' }, [pv, msg]);
       var file = el('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp' });
       var rm = el('button', { type: 'button', class: 'btn ghost small', text: 'Remove photo' });
+      function autoPath() { if (fd.auto && obj[k] === undefined) return fd.auto; return (ctx.conv && ctx.index != null) ? ctx.conv.replace('%02d', String(ctx.index + 1).padStart(2, '0')).replace('%d', String(ctx.index + 1)) : ''; }
+      function paint() {
+        var p = obj[k] || '', auto = p ? '' : autoPath(), path = p || auto, token = ++seq;
+        pv.hidden = true; msg.hidden = false; rm.hidden = !p;
+        if (!path) { msg.textContent = 'No photo yet'; cap.textContent = 'Choose a photo below.'; return; }
+        cap.textContent = (S.pending[p] ? 'New photo — not saved yet · ' : (p ? 'Current photo · ' : 'Automatic photo · ')) + path.split('/').pop();
+        msg.textContent = 'Loading…';
+        repoImage(path).then(function (url) {
+          if (token !== seq) return;
+          pv.src = url; pv.hidden = false; msg.hidden = true;
+        }).catch(function () {
+          if (token !== seq) return;
+          pv.hidden = true; msg.hidden = false;
+          msg.textContent = auto ? 'No photo yet' : 'Photo file not found on GitHub';
+          cap.textContent = auto ? 'No photo yet (it would use ' + auto.split('/').pop() + ')' : 'Missing file: ' + path;
+        });
+      }
+      pv.addEventListener('click', function () { if (pv.src) window.open(pv.src, '_blank'); });
       file.addEventListener('change', async function () {
         var f0 = file.files && file.files[0]; if (!f0) return;
         try {
@@ -371,8 +639,8 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
         file.value = '';
       });
       rm.addEventListener('click', function () { set(''); paint(); });
-      var ctl = el('div', { class: 'imgctl' }, [file, rm, note]);
-      w.appendChild(el('div', { class: 'imgbox' }, [pv, ctl]));
+      var ctl = el('div', { class: 'imgctl' }, [cap, file, rm, el('small', { text: 'JPG, PNG or WebP. Big photos are resized automatically.' })]);
+      w.appendChild(el('div', { class: 'imgbox' }, [frame, ctl]));
       paint();
     } else if (t === 'list') {
       if (!Array.isArray(obj[k])) obj[k] = [];
@@ -390,7 +658,8 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       box.innerHTML = '';
       arr.forEach(function (it, i) { box.appendChild(rowEl(it, i)); });
       var add = el('button', { type: 'button', class: 'btn ghost addrow', text: '+ Add ' + spec.item });
-      add.addEventListener('click', function () { arr.push(spec.blank ? clone(spec.blank) : {}); touch(ctx.file); draw(); var rows = box.querySelectorAll('.row-card'); var last = rows[rows.length - 1]; if (last) { last.scrollIntoView({ behavior: 'smooth', block: 'center' }); var fi = last.querySelector('input[type=text],textarea'); if (fi) fi.focus(); } });
+      function added(item) { arr.push(item); touch(ctx.file); draw(); var rows = box.querySelectorAll(':scope > .row-card'); var last = rows[rows.length - 1]; if (last) { last.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
+      add.addEventListener('click', function () { if (spec.onAdd) spec.onAdd(added); else added(spec.blank ? clone(spec.blank) : {}); });
       box.appendChild(add);
     }
     function rowEl(it, i) {
@@ -401,9 +670,11 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       del.addEventListener('click', function () { if (confirm('Delete this ' + spec.item.toLowerCase() + '? It is removed when you press Save.')) { arr.splice(i, 1); touch(ctx.file); draw(); } });
       var body = el('div', { class: 'rbody' });
       var rctx = { file: ctx.file, dir: ctx.dir, tk: spec.tk, conv: spec.conv, index: spec.conv ? i : null, onInput: function () { tt.textContent = title(it) || ('New ' + spec.item); } };
-      function build() { body.innerHTML = ''; var fl = spec.fieldsFor ? spec.fieldsFor(it) : spec.fields; fl.forEach(function (fd) { body.appendChild(field(fd, it, rctx)); }); }
+      var ic = spec.iconFn ? el('span', { class: 'ricon', html: spec.iconFn(it) }) : null;
+      function build() { body.innerHTML = ''; var fl = spec.fieldsFor ? spec.fieldsFor(it) : spec.fields; fl.forEach(function (fd) { body.appendChild(field(fd, it, rctx)); }); if (ic) ic.innerHTML = spec.iconFn(it); tt.textContent = title(it) || ('New ' + spec.item); }
       rctx.redraw = build; build();
-      return el('div', { class: 'row-card' }, [el('div', { class: 'row-head' }, [el('span', { class: 'badge', text: String(i + 1) }), tt, el('span', { class: 'rbtns' }, [up, dn, del])]), body]);
+      var acts = (spec.rowActions || []).map(function (a) { return el('button', { type: 'button', class: a.cls || '', text: a.label, onclick: function () { a.fn(it, i); } }); });
+      return el('div', { class: 'row-card' }, [el('div', { class: 'row-head' }, [el('span', { class: 'badge', text: String(i + 1) }), ic, tt, el('span', { class: 'rbtns' }, acts.concat([up, dn, del]))]), body]);
     }
     draw();
     return box;
@@ -502,6 +773,17 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
     try { f = await loadFile(sec.file); } catch (e) { view.appendChild(el('div', { class: 'msg err', text: e.message })); return; }
     if (S.section !== id) return;
     var ctx = { file: sec.file, dir: sec.dir };
+    if (sec.id === 'pages') { try { await loadFile('projects-data.js'); } catch (e0) { /* optional */ } try { await loadFile('site-data.js'); } catch (e1) { /* optional */ } try { await loadFile('events-data.js'); } catch (e2) { /* optional */ } if (S.section !== id) return; }
+    if (sec.id === 'projects' && Array.isArray(f.data) && !f.data.length) {
+      var imp = el('button', { type: 'button', class: 'btn', text: 'Import NDA as the first project', onclick: async function () {
+        try {
+          var nf0 = await loadFile('nda-data.js'), n0 = nf0.data || {};
+          f.data.push({ title: n0.title || 'NDA', id: slugify(n0.title || 'nda'), subtitle: n0.subtitle || '', intro: n0.intro || '', logo: n0.logo === undefined ? 'assets/images/nda/nda-logo.png' : n0.logo, cols: 'c3', numbers: true, events: clone(n0.events || []) });
+          touch(sec.file); renderSection(id, true);
+        } catch (e3) { alert(e3.message); }
+      } });
+      view.appendChild(el('div', { class: 'msg info' }, [el('div', { text: 'No projects yet, so the old NDA section is still shown on the Events page. To manage NDA here (and add Collab and others), import it first.' }), el('div', { style: 'margin-top:10px' }, [imp])]));
+    }
     if (sec.kind === 'object') {
       if (!f.data[sec.sub] || typeof f.data[sec.sub] !== 'object') f.data[sec.sub] = {};
       var card = el('div', { class: 'row-card' }, [el('div', { class: 'rbody' })]); var rb = card.firstChild;
@@ -530,11 +812,11 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
   function logout() {
     if (dirtyCount() && !confirm('You have unsaved changes. Log out anyway?')) return;
     try { localStorage.removeItem(CFG_KEY); sessionStorage.removeItem(CFG_KEY); } catch (e) { /* ignore */ }
-    S.files = {}; S.pending = {}; S.dirty = {}; CFG = null; showLogin();
+    S.files = {}; S.pending = {}; S.dirty = {}; blobCache = {}; CFG = null; showLogin();
   }
   async function reloadAll() {
     if (dirtyCount() && !confirm('Discard unsaved changes and reload from GitHub?')) return;
-    S.files = {}; S.pending = {}; S.dirty = {}; go(S.section);
+    S.files = {}; S.pending = {}; S.dirty = {}; blobCache = {}; go(S.section);
   }
   function showLogin(msg) {
     var prev = readCfg() || {};
