@@ -85,6 +85,7 @@
   var MAIL = C.email || "contact.origoventures@gmail.com";
   var PHONE = C.phone || "";
 
+  var DEBUG = /[?&]debug=1/.test(location.search);   /* open contact.html?debug=1 to see the technical reason */
   var form = document.getElementById("contactForm");
   var btn = document.getElementById("submitBtn");
   var box = document.getElementById("formStatus");
@@ -121,15 +122,30 @@
       body: JSON.stringify(data),
       signal: ctrl ? ctrl.signal : undefined
     })
-      .then(function (r) { return r.json(); })
-      .then(function (res) {
-        clearTimeout(timer);
-        if (res && res.success === true) { form.reset(); say(res.message || "Thank you! Your message has been sent.", "ok"); }
-        else if (res && res.success === false) { say(res.message || "Your message could not be sent.", "err"); }
-        else { say(fallback(), "err", true); }
-        done();
+      .then(function (r) {
+        return r.text().then(function (txt) {
+          var res = null;
+          try { res = JSON.parse(txt); } catch (err) {
+            var plain = txt.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
+            fail("The server did not answer with JSON (HTTP " + r.status + "): " + plain);
+            return;
+          }
+          clearTimeout(timer);
+          if (res && res.success === true) { form.reset(); say(res.message || "Thank you! Your message has been sent.", "ok"); }
+          else if (res && res.success === false) { say(res.message || "Your message could not be sent.", "err"); }
+          else { fail("Unexpected JSON answer: " + txt.slice(0, 200)); return; }
+          done();
+        });
       })
-      .catch(function () { clearTimeout(timer); say(fallback(), "err", true); done(); });
+      .catch(function (err) { fail("Request failed - " + (err && err.name) + ": " + (err && err.message)); });
+
+    function fail(reason) {
+      clearTimeout(timer);
+      console.error("[contact form] " + reason);
+      say(fallback(), "err", true);
+      if (DEBUG) box.insertAdjacentHTML("beforeend", "<br><small>Debug: " + esc(reason) + "</small>");
+      done();
+    }
   });
 })();
 </script>
