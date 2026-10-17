@@ -6,13 +6,37 @@
 
 window.ORIGO_COMPANIES = [
     {
+        "name": "Wedding Berries",
+        "image": "",
+        "imageFit": "cover",
+        "tags": [
+            "Décor",
+            "Akth",
+            "Reception",
+            "Wedding",
+            "Holud",
+            "Rong Khela",
+            "Birthday Party"
+        ],
+        "highlight": {
+            "label": "Focus",
+            "value": "Event Management, Décor"
+        },
+        "description": [
+            "Wedding Berries design, plan & execute unforgettable moments for all wedding events, after-parties, socials & brands."
+        ],
+        "website": "https://weddingberriesbd.com",
+        "buttonText": "Visit Website"
+    },
+    {
         "name": "Splendor by Aneeka Bushra",
         "image": "",
         "imageFit": "cover",
         "tags": [
             "Beauty Parlour",
             "Salon",
-            "Makeover"
+            "Makeover",
+            "Party Makeover"
         ],
         "highlight": {
             "label": "Focus",
@@ -25,41 +49,21 @@ window.ORIGO_COMPANIES = [
         "buttonText": "Visit Website"
     },
     {
-        "name": "Wedding Berries",
-        "image": "",
-        "imageFit": "cover",
-        "tags": [
-            "Décor",
-            "Wedding",
-            "Event Planner"
-        ],
-        "highlight": {
-            "label": "Focus",
-            "value": "Luxurious Wedding Event Planner "
-        },
-        "description": [
-            "Replace with the approved company description: what it does and who it serves.",
-            "Add a second paragraph about its role within Origo Ventures."
-        ],
-        "website": "https://weddingberriesbd.com",
-        "buttonText": "Visit Website"
-    },
-    {
         "name": "The Paper Boutique",
         "image": "",
         "imageFit": "cover",
         "tags": [
-            "Category",
-            "Sector",
-            "Region"
+            "Customized Invitation",
+            "Corporate Sector",
+            "Baby Announcement",
+            "Wedding Dala"
         ],
         "highlight": {
             "label": "Focus",
-            "value": "Add key focus"
+            "value": "Customized Invitations"
         },
         "description": [
-            "Replace with the approved company description: what it does and who it serves.",
-            "Add a second paragraph about its role within Origo Ventures."
+            "Luxury custom invitations, Nikahnama, announcement boxes, and curated gift— crafted with care in Dhaka."
         ],
         "website": "https://www.paperboutiquebd.com",
         "buttonText": "Visit Website"
@@ -75,11 +79,10 @@ window.ORIGO_COMPANIES = [
         ],
         "highlight": {
             "label": "Focus",
-            "value": "Add key focus"
+            "value": "Food & Beverage "
         },
         "description": [
-            "Replace with the approved company description: what it does and who it serves.",
-            "Add a second paragraph about its role within Origo Ventures."
+            "The Bengali food lovers heaven. Bringing Puran Dhaka's original Chaaps, jhaal fries, drinks and deserts on our quest to build Bengali cuisine's identity."
         ],
         "website": "#",
         "buttonText": "Visit Website"
