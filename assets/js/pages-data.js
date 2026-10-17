@@ -13,20 +13,48 @@ window.ORIGO_PAGES = [
         "published": true,
         "blocks": [
             {
-                "type": "image",
+                "type": "imagetext",
                 "heading": "Afters Club",
                 "body": [],
                 "cards": [],
                 "caption": "Afters Club",
-                "image": "assets/images/pages/afters-club__pmv9gi5h9g5z.png"
+                "image": "assets/images/pages/afters-club__pmv9gi5h9g5z.png",
+                "size": "narrow",
+                "bg": "dark",
+                "align": "center",
+                "space": "normal",
+                "imagePos": "left",
+                "button": {}
             },
             {
-                "type": "image",
+                "type": "imagetext",
                 "heading": "Recess",
                 "body": [],
                 "cards": [],
-                "caption": "Recess"
+                "caption": "Recess",
+                "size": "narrow",
+                "bg": "dark",
+                "align": "center",
+                "space": "normal",
+                "image": "assets/images/pages/recess__pmvcoe8j0em5.png",
+                "items": [
+                    {
+                        "title": "",
+                        "text": "",
+                        "tags": [],
+                        "image": "",
+                        "buttonText": "",
+                        "link": ""
+                    }
+                ],
+                "imagePos": "right",
+                "button": {},
+                "cols": "c2",
+                "numbers": true
             }
-        ]
+        ],
+        "heroStyle": "left",
+        "showCta": true,
+        "menuName": "Partner Events"
     }
 ];
