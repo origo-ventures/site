@@ -16,7 +16,7 @@ window.ORIGO_PROJECTS = [
         "events": [
             {
                 "name": "Clock End",
-                "tagline": "",
+                "tagline": "90 minutes is only part of it.",
                 "image": "assets/images/nda/clock-end__pmv9epf8ptnv.png",
                 "link": ""
             },
@@ -28,7 +28,7 @@ window.ORIGO_PROJECTS = [
             },
             {
                 "name": "Bangla Fruit",
-                "tagline": "",
+                "tagline": "Culture is the product too.",
                 "image": "",
                 "link": ""
             },
@@ -40,7 +40,7 @@ window.ORIGO_PROJECTS = [
             },
             {
                 "name": "Zen Garden",
-                "tagline": "",
+                "tagline": "A wellness-led format exploring movement, recovery, calm and community.",
                 "image": "",
                 "link": ""
             },
@@ -68,13 +68,13 @@ window.ORIGO_PROJECTS = [
         "events": [
             {
                 "name": "Afters Club",
-                "tagline": "Hangout, Social Gathering",
+                "tagline": "A Thursday-night social format built around music, people and an easy reason to stay out a little longer.",
                 "link": "",
                 "image": "assets/images/projects/afters-club__pmvcpjj78n6j.jpg"
             },
             {
                 "name": "Recess",
-                "tagline": "",
+                "tagline": "Family Picnic, Corporate Picnic, Family Hangouts",
                 "link": "",
                 "image": "assets/images/projects/recess__pmvcpkllm0co.png"
             }
