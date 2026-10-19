@@ -76,7 +76,7 @@ window.ORIGO_PROJECTS = [
                 "name": "Recess",
                 "tagline": "Family Picnic, Corporate Picnic, Family Hangouts",
                 "link": "",
-                "image": "assets/images/projects/recess__pmvcpkllm0co.png"
+                "image": "assets/images/projects/recess__pmvf4880u7re.png"
             }
         ],
         "id": "social-project-s"
