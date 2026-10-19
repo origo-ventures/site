@@ -8,13 +8,29 @@
 <title>Events | Origo Ventures</title>
 <link rel="preload" href="assets/fonts/Origo.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png">
+  <link rel="canonical" href="https://origoventuresbd.com/events.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Origo Ventures">
+  <meta property="og:title" content="Events | Origo Ventures">
+  <meta property="og:description" content="Origo Ventures events.">
+  <meta property="og:url" content="https://origoventuresbd.com/events.html">
+  <meta property="og:image" content="https://origoventuresbd.com/assets/images/share.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Events | Origo Ventures">
+  <meta name="twitter:description" content="Origo Ventures events.">
+  <meta name="twitter:image" content="https://origoventuresbd.com/assets/images/share.jpg">
 </head>
 <body>
 <header class="site-header">
   <div class="container nav">
     <a href="index.html" aria-label="Origo Ventures home"><img class="logo" src="assets/images/origo-logo.png" alt="Origo Ventures"></a>
     <button class="menu-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span><span></span><span></span></button>
-    <ul class="nav-links"><li><a class="" href="index.html">Home</a></li><li><a class="" href="about.html">About</a></li><li><a class="" href="companies.html">Companies</a></li><li><a class="active" href="events.html">Events</a></li><li><a class="nav-cta " href="contact.html">Get in Touch</a></li></ul>
+    <ul class="nav-links"><li><a class="" href="index.html" data-c="nav.home">Home</a></li><li><a class="" href="about.html" data-c="nav.about">About</a></li><li><a class="" href="companies.html" data-c="nav.companies">Companies</a></li><li><a class="active" href="events.html" data-c="nav.events">Events</a></li><li><a class="nav-cta " href="contact.html" data-c="nav.cta">Get in Touch</a></li></ul>
   </div>
 </header>
 <main>
@@ -39,6 +55,10 @@
   </div>
   <div class="nda-grid" id="nda-events"></div>
 </div></section>
+<section class="section" id="past-wrap" style="border-top:1px solid var(--line)" hidden><div class="container">
+  <div class="section-head"><h2 class="section-title" data-c-title="events.pastHeading">Past<br>Events</h2><p class="lead" data-c="events.pastLead">A look back at what we have done.</p></div>
+  <div class="up-grid" id="events-past"></div>
+</div></section>
 <div id="projects-root"></div>
 <section class="cta reveal"><div class="container">
 <h2>Ready to build <em>what's next?</em></h2>
@@ -53,11 +73,11 @@
         <img class="footer-logo" src="assets/images/origo-logo.png" alt="Origo Ventures">
         <p class="footer-copy" data-site="contact.tagline">Building ventures and creating possibilities from Dhaka.</p>
       </div>
-      <div><div class="footer-title">Company</div><ul class="footer-links"><li><a href="about.html">About</a></li><li><a href="companies.html">Companies</a></li><li><a href="events.html">Events</a></li><li><a href="contact.html">Contact</a></li></ul></div>
-      <div><div class="footer-title">Contact</div><ul class="footer-links"><li><a href="mailto:contact.origoventures@gmail.com" data-site="contact.email" data-site-href="contact.email" data-prefix="mailto:" data-hide-empty>contact.origoventures@gmail.com</a></li><li><a href="#" data-site="contact.phone" data-site-href="contact.phone" data-prefix="tel:" data-hide-empty>+880 1719221497</a></li><li><a href="#" data-site="contact.address" data-hide-empty>Dhaka, Bangladesh</a></li></ul></div>
-      <div><div class="footer-title">Social</div><ul class="footer-links"><li><a href="#" data-site-href="contact.linkedin" data-hide-empty>LinkedIn ↗</a></li><li><a href="#" data-site-href="contact.facebook" data-hide-empty>Facebook ↗</a></li><li><a href="#" data-site-href="contact.instagram" data-hide-empty>Instagram ↗</a></li></ul></div>
+      <div><div class="footer-title" data-c="footer.company">Company</div><ul class="footer-links"><li><a href="about.html" data-c="nav.about">About</a></li><li><a href="companies.html" data-c="nav.companies">Companies</a></li><li><a href="events.html" data-c="nav.events">Events</a></li><li><a href="contact.html" data-c="nav.contact">Contact</a></li></ul></div>
+      <div><div class="footer-title" data-c="footer.contact">Contact</div><ul class="footer-links"><li><a href="mailto:contact.origoventures@gmail.com" data-site="contact.email" data-site-href="contact.email" data-prefix="mailto:" data-hide-empty>contact.origoventures@gmail.com</a></li><li><a href="#" data-site="contact.phone" data-site-href="contact.phone" data-prefix="tel:" data-hide-empty>+880 1719221497</a></li><li><a href="#" data-site="contact.address" data-hide-empty>Dhaka, Bangladesh</a></li></ul></div>
+      <div><div class="footer-title" data-c="footer.social">Social</div><ul class="footer-links"><li><a href="#" data-site-href="contact.linkedin" data-hide-empty>LinkedIn ↗</a></li><li><a href="#" data-site-href="contact.facebook" data-hide-empty>Facebook ↗</a></li><li><a href="#" data-site-href="contact.instagram" data-hide-empty>Instagram ↗</a></li></ul></div>
     </div>
-    <div class="footer-bottom"><span>© <span data-year></span> Origo Ventures. All rights reserved.</span><span data-site="contact.address">Dhaka, Bangladesh</span></div>
+    <div class="footer-bottom"><span>© <span data-year></span> <span data-c="footer.copyright">Origo Ventures. All rights reserved.</span></span><span data-site="contact.address">Dhaka, Bangladesh</span></div>
   </div>
 </footer>
 <script src="assets/js/events-data.js"></script>

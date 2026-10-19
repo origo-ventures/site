@@ -42,7 +42,7 @@ h1{font-size:25px;margin:0 0 6px;font-weight:600}
 .fld{display:flex;flex-direction:column;gap:5px;min-width:0}
 .fld>span.l{font-size:12px;color:var(--muted);letter-spacing:.04em}
 .fld small{color:var(--muted);font-size:12px}
-input[type=text],input[type=password],textarea,select{width:100%;background:#0f0f0f;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:11px 12px;font:inherit;font-size:16px}
+input[type=text],input[type=password],input[type=date],textarea,select{width:100%;background:#0f0f0f;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:11px 12px;font:inherit;font-size:16px}
 textarea{resize:vertical}
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
@@ -96,6 +96,11 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
 .pvstage.mob iframe{width:390px;max-width:100%}
 .pill.on2{background:var(--accent);border-color:var(--accent);color:#fff}
 @media (min-width:760px){.tiles{grid-template-columns:repeat(4,1fr)}.tiles.t3{grid-template-columns:repeat(3,1fr)}}
+
+.urow{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer}
+.urow input{width:22px;height:22px;flex:0 0 auto}
+.upv{width:72px;height:54px;object-fit:cover;border-radius:6px;background:#0f0f0f;border:1px solid var(--line);flex:0 0 auto}
+.uinfo{display:flex;flex-direction:column;min-width:0}.uinfo small{color:var(--muted);word-break:break-all}
 </style>
 </head>
 <body>
@@ -320,7 +325,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       fields: function () { return [{ key: 'line', label: 'Type', type: 'select', options: { line: 'Line', space: 'Empty space' } }, { key: 'size', label: 'Size', type: 'select', options: { sm: 'Small', md: 'Medium', lg: 'Large' } }]; },
       make: function () { return { type: 'divider', line: 'line', size: 'md' }; } },
     events: { label: 'Events list', desc: 'Show current / upcoming events',
-      fields: function () { return [HEADING, { key: 'mode', label: 'Which events', type: 'select', options: { upcoming: 'Upcoming events', current: 'Current event only', all: 'All events' } }, { key: 'limit', label: 'Max number (empty = all)', type: 'text' }]; },
+      fields: function () { return [HEADING, { key: 'mode', label: 'Which events', type: 'select', options: { upcoming: 'Upcoming events', current: 'Current event only', past: 'Past events', all: 'All events' } }, { key: 'limit', label: 'Max number (empty = all)', type: 'text' }]; },
       make: function () { return st({ type: 'events', heading: 'Events', mode: 'upcoming', limit: '' }); } },
     project: { label: 'Event project', desc: 'Show an NDA / Collab project section',
       fields: function () { return [{ key: 'project', label: 'Which project', type: 'select', options: projectOptions() }]; },
@@ -460,19 +465,26 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
     { id: 'eventsText', group: 'Page text', title: 'Events page', file: 'content-data.js', varName: 'ORIGO_CONTENT', kind: 'object', sub: 'events',
       intro: 'Heading text of the Events page. (The events themselves are under "Events" and "NDA".)',
       fields: [{ key: 'eyebrow', label: 'Small label', type: 'text' }, { key: 'title', label: 'Page title', type: 'title', hint: TITLE_HINT }, { key: 'lead', label: 'Intro paragraph', type: 'textarea', rows: 3 },
-        { key: 'currentHeading', label: '"Current Event" heading', type: 'title', hint: TITLE_HINT }, { key: 'upcomingHeading', label: '"Upcoming Events" heading', type: 'title', hint: TITLE_HINT }, { key: 'upcomingLead', label: '"Upcoming Events" intro line', type: 'text' }] },
+        { key: 'currentHeading', label: '"Current Event" heading', type: 'title', hint: TITLE_HINT }, { key: 'upcomingHeading', label: '"Upcoming Events" heading', type: 'title', hint: TITLE_HINT }, { key: 'upcomingLead', label: '"Upcoming Events" intro line', type: 'text' },
+        { key: 'pastHeading', label: '"Past Events" heading', type: 'title', hint: TITLE_HINT }, { key: 'pastLead', label: '"Past Events" intro line', type: 'text' }] },
     { id: 'contactText', group: 'Page text', title: 'Contact page', file: 'content-data.js', varName: 'ORIGO_CONTENT', kind: 'object', sub: 'contact',
       intro: 'Heading text of the Contact page. (Email, phone, address and map are under "Contact info".)',
       fields: [{ key: 'eyebrow', label: 'Small label', type: 'text' }, { key: 'title', label: 'Page title', type: 'title', hint: TITLE_HINT }, { key: 'lead', label: 'Intro paragraph', type: 'textarea', rows: 3 }, { key: 'mapHeading', label: 'Map heading', type: 'title', hint: TITLE_HINT }] },
+    { id: 'menu', group: 'Page text', title: 'Menu', file: 'content-data.js', varName: 'ORIGO_CONTENT', kind: 'object', sub: 'nav',
+      intro: 'Names in the top menu and the footer links. Leave a box empty to keep the default name.',
+      fields: [{ key: 'home', label: 'Home', type: 'text', ph: 'Home' }, { key: 'about', label: 'About', type: 'text', ph: 'About' }, { key: 'companies', label: 'Companies', type: 'text', ph: 'Companies' }, { key: 'events', label: 'Events', type: 'text', ph: 'Events' }, { key: 'contact', label: 'Contact (footer link)', type: 'text', ph: 'Contact' }, { key: 'cta', label: 'Menu button (top right)', type: 'text', ph: 'Get in Touch' }] },
+    { id: 'footer', group: 'Page text', title: 'Footer', file: 'content-data.js', varName: 'ORIGO_CONTENT', kind: 'object', sub: 'footer',
+      intro: 'Headings and the copyright line in the footer of every page. Leave a box empty to keep the default.',
+      fields: [{ key: 'company', label: 'First column heading', type: 'text', ph: 'Company' }, { key: 'contact', label: 'Second column heading', type: 'text', ph: 'Contact' }, { key: 'social', label: 'Third column heading', type: 'text', ph: 'Social' }, { key: 'copyright', label: 'Copyright text (the year is added automatically)', type: 'text', ph: 'Origo Ventures. All rights reserved.' }] },
     { id: 'cta', group: 'Page text', title: 'Call-to-action', file: 'content-data.js', varName: 'ORIGO_CONTENT', kind: 'object', sub: 'cta',
       intro: 'The big "Ready to build what\'s next?" block at the bottom of every page.',
       fields: [{ key: 'title', label: 'Title', type: 'title', hint: TITLE_HINT }, { key: 'text', label: 'Paragraph', type: 'textarea', rows: 3 }, BTN('btn1', 'Button 1'), BTN('btn2', 'Button 2')] },
 
     { id: 'events', group: 'Content', title: 'Events', file: 'events-data.js', varName: 'ORIGO_EVENTS', kind: 'list', dir: 'events', conv: 'assets/images/events/event-%d.jpg', item: 'Event', tk: 'title',
-      intro: 'The FIRST event is the "Current Event" (Home + top of Events page). The rest show under "Upcoming Events". Use the arrows to reorder.',
-      norm: function (arr) { var seen = {}; arr.forEach(function (e, i) { var id = /^[a-z0-9-]{1,60}$/.test(e.id || '') ? e.id : slugify(e.title), b = id, c = 2; while (seen[id]) { id = b + '-' + c++; } seen[id] = 1; e.id = id; e.status = i === 0 ? 'Current' : 'Upcoming'; }); },
+      intro: 'Set the calendar date of each event and the website sorts them by itself: the nearest coming event is the "Current Event" (Home + top of Events page), later ones are "Upcoming", and finished ones move to "Past Events". Events without a calendar date stay in the order you set (use the arrows).',
+      norm: function (arr) { var seen = {}; arr.forEach(function (e) { var id = /^[a-z0-9-]{1,60}$/.test(e.id || '') ? e.id : slugify(e.title), b = id, c = 2; while (seen[id]) { id = b + '-' + c++; } seen[id] = 1; e.id = id; delete e.status; }); },
       fields: [
-        { key: 'title', label: 'Event title', type: 'text' }, { key: 'date', label: 'Date', type: 'text', ph: 'e.g. 11th October 2026' },
+        { key: 'title', label: 'Event title', type: 'text' }, { key: 'dateISO', label: 'Calendar date (automatic Current / Upcoming / Past)', type: 'date' }, { key: 'date', label: 'Date text (optional — shown instead of the calendar date)', type: 'text', ph: 'e.g. 11th October 2026' },
         { key: 'time', label: 'Time', type: 'text', ph: 'e.g. 4:00 PM – 10:00 PM' }, { key: 'venue', label: 'Venue', type: 'text' },
         { key: 'category', label: 'Category', type: 'text' }, { key: 'ticketLink', label: 'Get Ticket link', type: 'url', ph: 'https://…  (empty = hide the button)' },
         { key: 'tagline', label: 'Short description (shown on the event block)', type: 'textarea', rows: 3 },
@@ -516,12 +528,17 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
         { key: 'mapQuery', label: 'Office location for the Google map', type: 'textarea', rows: 3, hint: 'Type the full office address (e.g. "House 12, Road 5, Motijheel, Dhaka"), OR paste the code from Google Maps > Share > Embed a map. Empty = no map.' },
         { key: 'mapLink', label: 'Google Maps share link (optional, for the "Open in Google Maps" button)', type: 'url' },
         { key: 'formEndpoint', label: 'Contact form link (Google Apps Script /exec URL)', type: 'url', hint: 'Used by the contact form blocks on extra pages. Empty = the built-in link.' },
+        { key: 'showWhatsapp', label: 'Show the WhatsApp chat button on every page', type: 'bool', def: true },
+        { key: 'whatsapp', label: 'WhatsApp number (empty = use the phone number above)', type: 'text', ph: '+8801XXXXXXXXX' },
+        { key: 'whatsappText', label: 'First WhatsApp message', type: 'text', ph: 'Hello Origo Ventures, I would like to know more.' },
+        { key: 'analyticsId', label: 'Google Analytics ID (optional)', type: 'text', ph: 'G-XXXXXXXXXX' },
         { key: 'linkedin', label: 'LinkedIn link', type: 'url' }, { key: 'facebook', label: 'Facebook link', type: 'url' }, { key: 'instagram', label: 'Instagram link', type: 'url' }
       ] },
     { id: 'pages', group: 'Extra pages', title: 'Extra pages', file: 'pages-data.js', varName: 'ORIGO_PAGES', kind: 'list', dir: 'pages', item: 'Page', tk: 'title', optional: true,
       intro: 'Create any new page. Press "+ Add Page", name it and choose a starting layout, then edit the blocks. Use Preview to see it before saving.',
       onAdd: function (cb) { openWizard(cb); },
-      rowActions: [{ label: '👁 Preview', cls: 'pvbtn', fn: function (page) { openPreview(page); } }],
+      rowActions: [{ label: '👁 Preview', cls: 'pvbtn', fn: function (page) { openPreview(page); } },
+        { label: '⧉ Duplicate', cls: 'pvbtn', fn: function (page, i, arr, redraw) { var c = clone(page); c.title = (page.title || '') + ' (copy)'; c.menuName = (page.menuName || page.title || '') + ' (copy)'; c.slug = ''; c.published = false; arr.splice(i + 1, 0, c); redraw(); } }],
       norm: function (arr) { var seen = {}; arr.forEach(function (p) { if (!p.menuName) p.menuName = p.title; var s = slugify(p.slug || p.menuName || p.title), b = s, c = 2; while (seen[s]) { s = b + '-' + c++; } seen[s] = 1; p.slug = s; }); },
       fields: [
         { key: 'menuName', label: 'Menu name (shown in the top menu and footer)', type: 'text' },
@@ -548,6 +565,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
     st.textContent = n ? 'Unsaved changes' : 'No unsaved changes';
     st.className = 'st' + (n ? ' dirty' : '');
     b.disabled = !n || S.busy;
+    var db = document.getElementById('discardbtn'); if (db) { var sec0 = secById(S.section); db.disabled = !(sec0 && S.dirty['assets/js/' + sec0.file]); }
   }
   window.addEventListener('beforeunload', function (e) { if (dirtyCount()) { e.preventDefault(); e.returnValue = ''; } });
 
@@ -561,6 +579,10 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
     function set(v) { obj[k] = v; touch(ctx.file); if (ctx.onInput) ctx.onInput(); }
     if (t === 'text' || t === 'url') {
       inp = el('input', { type: 'text', value: obj[k] == null ? '' : obj[k], placeholder: fd.ph || '', autocomplete: 'off' });
+      inp.addEventListener('input', function () { set(inp.value); });
+      w.appendChild(label(fd)); w.appendChild(inp); if (hint(fd)) w.appendChild(hint(fd));
+    } else if (t === 'date') {
+      inp = el('input', { type: 'date', value: obj[k] || '' });
       inp.addEventListener('input', function () { set(inp.value); });
       w.appendChild(label(fd)); w.appendChild(inp); if (hint(fd)) w.appendChild(hint(fd));
     } else if (t === 'textarea' || t === 'title') {
@@ -673,7 +695,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       var ic = spec.iconFn ? el('span', { class: 'ricon', html: spec.iconFn(it) }) : null;
       function build() { body.innerHTML = ''; var fl = spec.fieldsFor ? spec.fieldsFor(it) : spec.fields; fl.forEach(function (fd) { body.appendChild(field(fd, it, rctx)); }); if (ic) ic.innerHTML = spec.iconFn(it); tt.textContent = title(it) || ('New ' + spec.item); }
       rctx.redraw = build; build();
-      var acts = (spec.rowActions || []).map(function (a) { return el('button', { type: 'button', class: a.cls || '', text: a.label, onclick: function () { a.fn(it, i); } }); });
+      var acts = (spec.rowActions || []).map(function (a) { return el('button', { type: 'button', class: a.cls || '', text: a.label, onclick: function () { a.fn(it, i, arr, function () { touch(ctx.file); draw(); }); } }); });
       return el('div', { class: 'row-card' }, [el('div', { class: 'row-head' }, [el('span', { class: 'badge', text: String(i + 1) }), ic, tt, el('span', { class: 'rbtns' }, acts.concat([up, dn, del]))]), body]);
     }
     draw();
@@ -693,7 +715,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
   function serialize(f) { return f.header + 'window.' + f.varName + ' = ' + JSON.stringify(f.data, null, 4) + ';\n'; }
 
   /* ---------------------------------------------------------------- save */
-  function note(kind, text) { var m = document.getElementById('flash'); if (!m) return; m.innerHTML = ''; if (text) m.appendChild(el('div', { class: 'msg ' + kind, text: text })); if (text) window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  function note(kind, text, noScroll) { var m = document.getElementById('flash'); if (!m) return; m.innerHTML = ''; if (text) m.appendChild(el('div', { class: 'msg ' + kind, text: text })); if (text && !noScroll) window.scrollTo({ top: 0, behavior: 'smooth' }); }
   async function saveAll() {
     var paths = Object.keys(S.dirty).filter(function (k) { return S.dirty[k]; });
     if (!paths.length || S.busy) return;
@@ -719,13 +741,113 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
         for (var op in old) { if (!nowRefs[op] && op.indexOf('__p') > -1) { try { var info = await gh('GET', op); await gh('DELETE', op, { message: 'Control panel: remove old photo', sha: info.sha, branch: CFG.branch }); } catch (e) { /* ignore */ } } }
         done[q].origImgs = gather(done[q].data, {});
       }
+      if (done.some(function (f) { return f.path === 'assets/js/pages-data.js'; })) await writeSitemap();
       S.busy = false; refreshBar();
       renderSection(S.section, true);
-      note('ok', 'Saved to GitHub (' + done.length + ' file' + (done.length === 1 ? '' : 's') + (uploaded ? ', ' + uploaded + ' photo' + (uploaded === 1 ? '' : 's') : '') + '). The live site updates in about 1–2 minutes — then refresh the page (Ctrl+Shift+R).');
+      note('ok', 'Saved to GitHub (' + done.length + ' file' + (done.length === 1 ? '' : 's') + (uploaded ? ', ' + uploaded + ' photo' + (uploaded === 1 ? '' : 's') : '') + ').');
+      watchLive(done);
     } catch (e) {
       S.busy = false; refreshBar();
       note('err', e.message + (done.length ? '\n\nAlready saved: ' + done.map(function (f) { return f.path.split('/').pop(); }).join(', ') + '. The rest is still unsaved here.' : ''));
     }
+  }
+
+  /* ---------------------------------------------------------------- sitemap + live check */
+  function sitemapXML(pagesData) {
+    var base = /^https?:/.test(location.protocol) ? location.origin : 'https://origoventuresbd.com';
+    var urls = ['', 'about.html', 'companies.html', 'events.html', 'contact.html'];
+    (pagesData || []).forEach(function (p) { if (p && p.slug && p.published !== false) urls.push('page.html?p=' + encodeURIComponent(p.slug)); });
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls.map(function (u) { return '  <url><loc>' + base + '/' + u + '</loc></url>\n'; }).join('') + '</urlset>\n';
+  }
+  async function writeSitemap() {
+    try {
+      var pf = S.files['assets/js/pages-data.js']; if (!pf) return;
+      var body = sitemapXML(pf.data), sha;
+      try { var cur = await gh('GET', 'sitemap.xml'); sha = cur.sha; if (b64dec(cur.content) === body) return; } catch (e) { if (e.status !== 404) return; }
+      await gh('PUT', 'sitemap.xml', { message: 'Control panel: update sitemap', content: b64enc(body), sha: sha, branch: CFG.branch });
+    } catch (e) { /* sitemap is optional */ }
+  }
+  var liveToken = 0;
+  function liveMsg(kind, text) {
+    var m = document.getElementById('flash'); if (!m) return;
+    var x = document.getElementById('livemsg');
+    if (!x) { x = el('div', { id: 'livemsg' }); m.appendChild(x); }
+    x.className = 'msg ' + kind; x.textContent = text;
+  }
+  async function watchLive(files) {
+    var tok = ++liveToken;
+    if (!/^https?:/.test(location.protocol)) { liveMsg('info', 'Tip: open this panel from your website address (https://…) and it will tell you when the site is live.'); return; }
+    var t0 = Date.now(), want = files.map(function (f) { return { name: f.path, text: serialize(f).trim() }; });
+    liveMsg('info', '⏳ Waiting for the website to publish…');
+    while (Date.now() - t0 < 240000) {
+      await new Promise(function (r) { setTimeout(r, 6000); });
+      if (tok !== liveToken) return;
+      var ok = true;
+      for (var i = 0; i < want.length && ok; i++) {
+        try { var r = await fetch(want[i].name + '?_=' + Date.now(), { cache: 'no-store' }); ok = ((await r.text()).trim() === want[i].text); } catch (e) { ok = false; }
+      }
+      if (ok) { liveMsg('ok', '✓ Live — the website now shows your changes (took ' + Math.round((Date.now() - t0) / 1000) + ' seconds). If you still see the old version, refresh with Ctrl+Shift+R.'); return; }
+      liveMsg('info', '⏳ Waiting for the website to publish… (' + Math.round((Date.now() - t0) / 1000) + 's)');
+    }
+    if (tok === liveToken) liveMsg('info', 'Saved to GitHub, but the website has not shown the change after 4 minutes. GitHub Pages can be slow — check again in a few minutes (GitHub repo > Actions shows the build).');
+  }
+
+  /* ---------------------------------------------------------------- unused photos tool */
+  async function renderUnused(view) {
+    view.appendChild(el('h1', { text: 'Unused photos' }));
+    view.appendChild(el('p', { class: 'muted', text: 'Photos stored in your repository that no page uses any more. Tick the ones you want to delete. (Deleted files stay in the GitHub history, so they can be recovered.)' }));
+    var out = el('div'), scanBtn = el('button', { type: 'button', class: 'btn', text: 'Scan photos' });
+    view.appendChild(el('div', { style: 'margin-bottom:14px' }, [scanBtn])); view.appendChild(out);
+    var PROTECT = { 'assets/images/origo-logo.png': 1, 'assets/images/share.jpg': 1, 'assets/images/favicon-32.png': 1, 'assets/images/apple-touch-icon.png': 1 };
+    async function scan() {
+      out.innerHTML = ''; out.appendChild(el('p', { class: 'muted', text: 'Scanning… (reading all your data files and the photo list)' })); scanBtn.disabled = true;
+      try {
+        var r = await fetch(API + '/repos/' + CFG.owner + '/' + CFG.repo + '/git/trees/' + encodeURIComponent(CFG.branch) + '?recursive=1', { headers: headers(), cache: 'no-store' });
+        var j = await r.json().catch(function () { return {}; });
+        if (!r.ok) throw new Error(friendly(r.status, j, 'file list'));
+        if (j.truncated) throw new Error('The repository is too big to scan here.');
+        var imgs = (j.tree || []).filter(function (t) { return t.type === 'blob' && /^assets\/images\/.+\.(jpg|jpeg|png|webp)$/i.test(t.path); });
+        var used = {};
+        ['content-data.js', 'events-data.js', 'nda-data.js', 'companies-data.js', 'site-data.js', 'pages-data.js', 'projects-data.js'].forEach(function () { });
+        var names = ['content-data.js', 'events-data.js', 'nda-data.js', 'companies-data.js', 'site-data.js', 'pages-data.js', 'projects-data.js'];
+        for (var i = 0; i < names.length; i++) { try { var f = await loadFile(names[i]); gather(f.data, used); } catch (e) { /* missing optional file */ } }
+        var D = function (n) { var f = S.files['assets/js/' + n]; return f ? f.data : null; };
+        var pad2 = function (n) { return String(n).padStart(2, '0'); };
+        (D('events-data.js') || []).forEach(function (e, k) { if (e && !e.image) used['assets/images/events/event-' + (k + 1) + '.jpg'] = 1; });
+        var nda = D('nda-data.js') || {};
+        (nda.events || []).forEach(function (e, k) { if (e && !e.image) used['assets/images/nda/nda-' + pad2(k + 1) + '.jpg'] = 1; });
+        if (nda.logo === undefined) used['assets/images/nda/nda-logo.png'] = 1;
+        (D('companies-data.js') || []).forEach(function (e, k) { if (e && !e.image) used['assets/images/companies/company-' + (k + 1) + '.jpg'] = 1; });
+        var site = D('site-data.js') || {};
+        (site.ventures || []).forEach(function (e, k) { if (e && !e.image) used['assets/images/companies/company-' + (k + 1) + '.jpg'] = 1; });
+        if (site.founder) { if (!site.founder.photo) used['assets/images/founder/founder.jpg'] = 1; if (!site.founder.qr) used['assets/images/founder/qr-code.png'] = 1; }
+        var unused = imgs.filter(function (t) { return !used[t.path] && !PROTECT[t.path]; });
+        out.innerHTML = '';
+        if (!unused.length) { out.appendChild(el('div', { class: 'msg ok', text: '✓ No unused photos. Checked ' + imgs.length + ' photos.' })); scanBtn.disabled = false; return; }
+        out.appendChild(el('p', { class: 'muted', text: unused.length + ' unused photo' + (unused.length === 1 ? '' : 's') + ' found (of ' + imgs.length + ').' }));
+        var boxes = [];
+        unused.forEach(function (t) {
+          var cb = el('input', { type: 'checkbox' }); boxes.push({ cb: cb, t: t });
+          var im = el('img', { class: 'upv', alt: '' });
+          repoImage(t.path).then(function (u) { im.src = u; }).catch(function () { });
+          out.appendChild(el('label', { class: 'urow' }, [cb, im, el('span', { class: 'uinfo' }, [el('b', { text: t.path.split('/').pop() }), el('small', { text: t.path + ' · ' + Math.round((t.size || 0) / 1024) + ' KB' })])]));
+        });
+        var del = el('button', { type: 'button', class: 'btn', text: 'Delete selected', onclick: async function () {
+          var sel = boxes.filter(function (b) { return b.cb.checked; });
+          if (!sel.length) { alert('Tick the photos to delete first.'); return; }
+          if (!confirm('Delete ' + sel.length + ' photo(s) from GitHub?')) return;
+          del.disabled = true; var fails = 0;
+          for (var q = 0; q < sel.length; q++) { try { await gh('DELETE', sel[q].t.path, { message: 'Control panel: delete unused photo', sha: sel[q].t.sha, branch: CFG.branch }); } catch (e) { fails++; } }
+          note('ok', 'Deleted ' + (sel.length - fails) + ' photo(s).' + (fails ? ' ' + fails + ' could not be deleted.' : ''));
+          scan();
+        } });
+        var all = el('button', { type: 'button', class: 'tb', text: 'Select all', onclick: function () { boxes.forEach(function (b) { b.cb.checked = true; }); } });
+        out.appendChild(el('div', { style: 'display:flex;gap:10px;margin-top:12px;flex-wrap:wrap' }, [all, del]));
+        scanBtn.disabled = false;
+      } catch (e) { out.innerHTML = ''; out.appendChild(el('div', { class: 'msg err', text: e.message })); scanBtn.disabled = false; }
+    }
+    scanBtn.addEventListener('click', scan);
+    scan();
   }
 
   /* ---------------------------------------------------------------- views */
@@ -739,6 +861,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       nav.appendChild(el('span', { class: 'sep', text: g }));
       SECTIONS.filter(function (s) { return s.group === g; }).forEach(function (s) { nav.appendChild(el('button', { class: 'pill' + (S.section === s.id ? ' on' : ''), text: s.title, onclick: function () { go(s.id); } })); });
     });
+    nav.appendChild(el('span', { class: 'sep', text: 'Tools' })); nav.appendChild(el('button', { class: 'pill' + (S.section === 'unused' ? ' on' : ''), text: 'Unused photos', onclick: function () { go('unused'); } }));
     var top = el('div', { class: 'top' }, [
       el('div', { class: 'toprow' }, [
         el('div', { class: 'brand', html: 'ORIGO <span>Control</span>' }),
@@ -763,12 +886,18 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       view.appendChild(el('p', { class: 'muted', text: 'Pick what you want to change, edit it, then press "Save to GitHub". The live site updates in 1–2 minutes.' }));
       var cards = el('div', { class: 'cards' });
       SECTIONS.forEach(function (s) { cards.appendChild(el('button', { class: 'card', onclick: function () { go(s.id); } }, [el('b', { text: s.title }), el('span', { text: s.intro })])); });
+      cards.appendChild(el('button', { class: 'card', onclick: function () { go('unused'); } }, [el('b', { text: 'Unused photos' }), el('span', { text: 'Find photos nothing uses any more and delete them.' })]));
       view.appendChild(cards);
       view.appendChild(el('div', { class: 'box', style: 'margin-top:18px' }, [el('b', { text: 'Tips' }), el('p', { class: 'muted', style: 'margin:6px 0 0', text: 'Titles: a new line makes a line break, and *stars* around a word make it outlined. Photos are resized automatically before upload. Every save is a GitHub commit, so older versions can always be restored from the repository history.' })]));
       refreshBar(); return;
     }
+    if (id === 'unused') { await renderUnused(view); refreshBar(); return; }
     var sec = secById(id);
     view.appendChild(el('h1', { text: sec.title })); view.appendChild(el('p', { class: 'muted', text: sec.intro }));
+    view.appendChild(el('div', { style: 'margin:-6px 0 14px' }, [el('button', { type: 'button', id: 'discardbtn', class: 'tb', text: '↺ Discard unsaved changes', disabled: !S.dirty['assets/js/' + sec.file], onclick: function () {
+      if (!confirm('Discard ALL unsaved changes in this section (and other sections that share the same data file) and reload it from GitHub?')) return;
+      var path = 'assets/js/' + sec.file; delete S.files[path]; S.dirty[path] = false; renderSection(id);
+    } })]));
     var f;
     try { f = await loadFile(sec.file); } catch (e) { view.appendChild(el('div', { class: 'msg err', text: e.message })); return; }
     if (S.section !== id) return;

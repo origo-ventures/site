@@ -1,0 +1,60 @@
+ORIGO VENTURES - GUIDES (v7)
+============================
+
+1) WHAT IS NEW
+- Share preview (WhatsApp / Facebook / LinkedIn): title, description and a branded image.
+- Favicon (browser tab icon), 404 page, sitemap.xml, robots.txt.
+- Events sort themselves by calendar date: Current / Upcoming / Past.
+- Menu and Footer text editable in the control panel.
+- WhatsApp chat button + optional Google Analytics (Control panel > Contact info).
+- Control panel: "Live" check after saving, Duplicate page, Discard unsaved changes, Unused photos tool.
+- Contact form: visitor gets an automatic "we received your message" email (needs the new Code.gs).
+
+2) EVENTS BY DATE
+Control panel > Events > fill "Calendar date" for every event.
+- The nearest coming event = Current Event (Home + top of Events page).
+- Later ones = Upcoming. Finished ones move to "Past Events" by themselves (the day after).
+- Events with no calendar date keep the order you set with the arrows.
+
+3) AUTO-REPLY EMAIL (Apps Script)
+1. Open your Apps Script project, replace ALL of Code.gs with the new Code.gs, Save.
+2. Deploy > Manage deployments > pencil > Version: New version > Deploy (the /exec link stays the same).
+3. In your Google Sheet "Inquiries" tab, type  Auto-reply  in cell H1 (new 8th column).
+4. Send a test message on the website. You should get: the notification mail, and the visitor
+   (your test address) gets "We received your message - Origo Ventures". Check Spam too.
+Note: each website message now uses 2 of Gmail's ~100 emails per day (one to you, one to the visitor).
+To switch the auto-reply off: in Code.gs set  autoReply: false  and deploy a new version.
+
+4) WHATSAPP BUTTON
+Control panel > Contact info:
+- "Show the WhatsApp chat button" (on by default). Number = the field below, or your phone number if empty.
+- Use the international format, e.g. +8801XXXXXXXXX. "First WhatsApp message" is the text that is pre-filled.
+
+5) GOOGLE SEARCH CONSOLE (so Google finds your site)
+1. search.google.com/search-console > Add property > "URL prefix" > https://origoventuresbd.com
+2. Verify with "HTML file": download the file Google gives you (google123abc.html) and upload it to the
+   ROOT of your GitHub repo (same place as index.html). Press Verify.
+   (Or verify with a DNS TXT record at your domain provider.)
+3. Sitemaps > add:  sitemap.xml  > Submit.  The control panel updates sitemap.xml by itself when you save pages.
+
+6) GOOGLE ANALYTICS
+1. analytics.google.com > create a property for the website > Web data stream > copy the Measurement ID (G-XXXXXXXXXX).
+2. Control panel > Contact info > "Google Analytics ID" > paste > Save to GitHub.
+   Visits appear in Analytics within a day. Empty box = analytics off.
+
+7) SHARE PREVIEW TESTS
+- Facebook: developers.facebook.com/tools/debug > paste the link > "Scrape Again".
+- WhatsApp caches previews for a while: send the link to yourself to check; a new link variant (add ?v=2) refreshes it.
+- The preview image is assets/images/share.jpg (1200x630). Replace it with the same name to change it.
+- Extra pages made in the panel share the generic site preview (social sites do not run page scripts).
+
+8) UNUSED PHOTOS TOOL
+Control panel > Tools > Unused photos > Scan. Tick the photos nothing uses and press Delete selected.
+Deleted files stay in GitHub history. The logo, share image and icons are protected.
+
+9) MENU AND FOOTER TEXT
+Control panel > Page text > Menu / Footer. An empty box keeps the default word.
+
+10) CONTACT PAGE
+The contact page was left untouched on purpose (it works). It still gets the WhatsApp button, map, footer info and the sitemap entry.
+Two small things only appear on the other pages: share-preview tags and renamed menu words. If you want them there later, ask for a contact.html update.

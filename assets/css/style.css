@@ -414,3 +414,11 @@ a.cap{color:inherit}
 }
 
 .gal-ph{aspect-ratio:4/3}
+
+.up-card.past{opacity:.82}
+.up-card.past:hover{opacity:1}
+
+/* WhatsApp button */
+.wa-float{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:900;width:54px;height:54px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 6px 20px rgba(0,0,0,.45);transition:transform .2s}
+.wa-float:hover{transform:scale(1.07)}
+@media (max-width:640px){.wa-float{width:50px;height:50px;right:14px}}

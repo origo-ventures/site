@@ -91,12 +91,23 @@
     }
   }
 
+  var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function todayISO() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function showDate(e) { return e.date || (/^\d{4}-\d{2}-\d{2}$/.test(e.dateISO || "") ? (+e.dateISO.slice(8, 10)) + " " + MONTHS[+e.dateISO.slice(5, 7) - 1] + " " + e.dateISO.slice(0, 4) : ""); }
+  function partitionEvents(list) {
+    var t = todayISO(), dated = [], undated = [], past = [];
+    list.forEach(function (e, i) { var o = { e: e, i: i }; if (/^\d{4}-\d{2}-\d{2}$/.test(e.dateISO || "")) (e.dateISO < t ? past : dated).push(o); else undated.push(o); });
+    dated.sort(function (a, b) { return a.e.dateISO < b.e.dateISO ? -1 : a.e.dateISO > b.e.dateISO ? 1 : a.i - b.i; });
+    past.sort(function (a, b) { return a.e.dateISO < b.e.dateISO ? 1 : a.e.dateISO > b.e.dateISO ? -1 : a.i - b.i; });
+    return { active: dated.concat(undated), past: past };
+  }
+
   /* ---------- page blocks ---------- */
   function eventCard(e, i) {
     var ext = isExt(e.ticketLink);
     var b = '<div class="btn-row ev-btns">' + (e.ticketLink ? '<a class="btn" href="' + esc(e.ticketLink) + '"' + (ext ? ' target="_blank" rel="noopener"' : "") + ">Get Ticket</a>" : "") + '<a class="btn ghost" href="contact.html">Contact</a></div>';
     var where = (e.time || e.venue) ? '<div class="ev-where">' + esc([e.time, e.venue].filter(Boolean).join(" · ")) + "</div>" : "";
-    return '<div class="up-card"><div class="work-media up-media">' + photo(e.image || ("assets/images/events/event-" + (i + 1) + ".jpg"), e.title, pad(i)) + '</div><div class="up-body"><div class="work-meta">' + esc(e.date || "") + " <span>/ " + esc(e.category || "Event") + "</span></div><h3>" + esc(e.title) + "</h3>" + where + "<p>" + esc(e.tagline || "") + "</p>" + b + "</div></div>";
+    return '<div class="up-card"><div class="work-media up-media">' + photo(e.image || ("assets/images/events/event-" + (i + 1) + ".jpg"), e.title, pad(i)) + '</div><div class="up-body"><div class="work-meta">' + esc(showDate(e)) + " <span>/ " + esc(e.category || "Event") + "</span></div><h3>" + esc(e.title) + "</h3>" + where + "<p>" + esc(e.tagline || "") + "</p>" + b + "</div></div>";
   }
   function head(b) { return b.heading ? '<div class="section-head"><h2 class="section-title">' + fmt(b.heading) + "</h2></div>" : ""; }
   var R = {
@@ -119,7 +130,7 @@
     cards: function (b) {
       var n = colN(b.cols, 3);
       return '<div class="container">' + head(b) + '<div class="cap-grid c' + n + '">' + one(b.cards).map(function (c, i) {
-        var inner = (c.image ? '<img class="cap-img" src="' + esc(src(c.image)) + '" alt="" loading="lazy">' : "") + (b.numbers === false ? "" : '<div class="n">' + pad(i) + "</div>") + "<h3>" + esc(c.title) + "</h3><p>" + esc(c.text) + "</p>";
+        var inner = (c.image ? '<img class="cap-img" src="' + esc(src(c.image)) + '" alt="' + esc(c.title || "") + '" loading="lazy">' : "") + (b.numbers === false ? "" : '<div class="n">' + pad(i) + "</div>") + "<h3>" + esc(c.title) + "</h3><p>" + esc(c.text) + "</p>";
         return c.link ? '<a class="cap" href="' + esc(c.link) + '"' + (isExt(c.link) ? ' target="_blank" rel="noopener"' : "") + ">" + inner + "</a>" : '<div class="cap">' + inner + "</div>";
       }).join("") + "</div></div>";
     },
@@ -161,10 +172,10 @@
     cta: function (b) { return '<div class="container cta-in">' + ctaHTML(b) + "</div>"; },
     divider: function (b) { return '<div class="container"><div class="divider ' + (b.line === "space" ? "sp" : "ln") + " " + (["sm", "md", "lg"].indexOf(b.size) > -1 ? b.size : "md") + '"></div></div>'; },
     events: function (b) {
-      var all = EV.filter(function (e) { return e && e.title; }), idx = all.map(function (e, i) { return i; }), mode = b.mode || "upcoming";
-      if (mode === "current") idx = idx.slice(0, 1); else if (mode === "upcoming") idx = idx.slice(1);
-      var lim = Number(b.limit) || 0; if (lim > 0) idx = idx.slice(0, lim);
-      return '<div class="container">' + head(b) + '<div class="up-grid">' + idx.map(function (i) { return eventCard(all[i], i); }).join("") + "</div></div>";
+      var all = EV.filter(function (e) { return e && e.title; }), pt = partitionEvents(all), mode = b.mode || "upcoming", list;
+      if (mode === "current") list = pt.active.slice(0, 1); else if (mode === "upcoming") list = pt.active.slice(1); else if (mode === "past") list = pt.past; else list = pt.active.concat(pt.past);
+      var lim = Number(b.limit) || 0; if (lim > 0) list = list.slice(0, lim);
+      return '<div class="container">' + head(b) + '<div class="up-grid">' + list.map(function (o) { return eventCard(o.e, o.i); }).join("") + "</div></div>";
     },
     project: function (b) {
       var p = PR.filter(function (x) { return x && (x.id === b.project || x.title === b.project); })[0];
