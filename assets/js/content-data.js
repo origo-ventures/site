@@ -114,7 +114,8 @@ window.ORIGO_CONTENT = {
         "currentHeading": "Current\nEvent",
         "upcomingHeading": "Upcoming\nEvents",
         "upcomingLead": "What's coming next from Origo Ventures.",
-        "pastHeading": "The 90"
+        "pastHeading": "The 90",
+        "pastLead": "The 90 Minutes of Football but vibe stay still till mid-night."
     },
     "contact": {
         "eyebrow": "Contact",
