@@ -85,26 +85,27 @@ window.ORIGO_CONTENT = {
         "valuesHeading": "Business\nCommunity\nCulture\nExperience",
         "valuesCards": [
             {
-                "title": "BUSINESS",
-                "text": ""
+                "title": "Strategy & Growth",
+                "text": "Helping businesses find the next move, not just run the current one."
             },
             {
-                "title": "COMMUNITY",
-                "text": ""
+                "title": "Investment & Structure",
+                "text": "Connecting capital, planning expansion and putting the right systems around growth."
             },
             {
-                "title": "CULTURE",
-                "text": ""
+                "title": "Shared Resources",
+                "text": "Marketing, accounts, HR, legal, CRM and operations working across the portfolio."
             },
             {
-                "title": "EXPERIENCE"
+                "title": "Projects & Partnerships",
+                "text": "Building new revenue ideas, brand partnerships and experiences from concept to execution."
             }
         ]
     },
     "companies": {
         "eyebrow": "Portfolio",
         "title": "Our\n*Companies*",
-        "lead": "The businesses and ventures we build, back and grow. Every company a new problem to solve."
+        "lead": "Built in different industries. Held together by the same instinct."
     },
     "events": {
         "eyebrow": "Events",
@@ -112,17 +113,18 @@ window.ORIGO_CONTENT = {
         "lead": "Launches, gatherings, announcements and photo stories from Origo Ventures.",
         "currentHeading": "Current\nEvent",
         "upcomingHeading": "Upcoming\nEvents",
-        "upcomingLead": "What's coming next from Origo Ventures."
+        "upcomingLead": "What's coming next from Origo Ventures.",
+        "pastHeading": "The 90"
     },
     "contact": {
         "eyebrow": "Contact",
         "title": "Let's start a\n*conversation.*",
-        "lead": "Tell us what you are building, exploring or looking for.",
+        "lead": "Over the years that has taken me from weddings and gifting to beauty, food, music, football and community-led experiences.",
         "mapHeading": "Find\nUs"
     },
     "cta": {
-        "title": "Ready to grow *what's next?*",
-        "text": "Tell us about your idea or venture. We'll help define the strategic, creative and operational path forward.",
+        "title": "Build something \n*people* belong to.",
+        "text": "Origo Ventures is the operating layer behind the businesses, communities and experiences of Nazmus Shams.",
         "btn1": {
             "text": "Start a Conversation",
             "link": "contact.html"
@@ -131,5 +133,7 @@ window.ORIGO_CONTENT = {
             "text": "View Companies",
             "link": "companies.html"
         }
-    }
+    },
+    "nav": {},
+    "footer": {}
 };
