@@ -101,6 +101,29 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
 .urow input{width:22px;height:22px;flex:0 0 auto}
 .upv{width:72px;height:54px;object-fit:cover;border-radius:6px;background:#0f0f0f;border:1px solid var(--line);flex:0 0 auto}
 .uinfo{display:flex;flex-direction:column;min-width:0}.uinfo small{color:var(--muted);word-break:break-all}
+
+.drop{display:block;border:2px dashed #3a3a3a;border-radius:12px;padding:28px 16px;text-align:center;cursor:pointer;color:#d6d6d0;background:#0f0f0f;margin-bottom:14px}
+.drop:hover,.drop.over{border-color:var(--accent);background:#1b1612}
+.drop input{display:none}
+.drop b{display:block;font-size:16px;margin-bottom:4px}.drop span{color:var(--muted);font-size:13px}
+.frow{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:6px;cursor:pointer}
+.frow.off{opacity:.55;cursor:default}
+.frow input{width:20px;height:20px;flex:0 0 auto}
+.fpath{min-width:0;flex:1;display:flex;flex-direction:column}.fpath b{font-size:14px;word-break:break-all}.fpath small{color:var(--muted);font-size:12px;word-break:break-all}
+.tag{flex:0 0 auto;font-size:11px;font-weight:700;letter-spacing:.06em;padding:3px 8px;border-radius:999px;border:1px solid}
+.tag.new{color:#7bd49a;border-color:#2f6b45;background:rgba(74,163,106,.12)}
+.tag.chg{color:#f0c27a;border-color:#6d5628;background:rgba(240,194,122,.1)}
+.tag.same{color:#9a9a94;border-color:#3a3a3a}
+.tag.prot{color:#ff8a85;border-color:#6b2f2d;background:#2a1514}
+.cbox{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:16px;margin-top:16px}
+.cbox h2{margin:0 0 6px;font-size:20px;font-weight:600}
+.cbox input[type=text],.cbox textarea{margin-bottom:10px}
+.rad{display:flex;gap:10px;align-items:flex-start;margin:8px 0;font-size:14px;color:#d6d6d0;cursor:pointer}
+.rad input{width:18px;height:18px;margin-top:2px;flex:0 0 auto}
+.rad code{background:#1d2530;color:#9ecbff;border-radius:6px;padding:1px 6px;font-size:13px}
+.cbtns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn.green{background:#238636;border-color:#2ea043}
+.btn.cancel{background:#1a1a1a;color:#ff8a85;border-color:#444}
 </style>
 </head>
 <body>
@@ -850,6 +873,227 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
     scan();
   }
 
+  /* ---------------------------------------------------------------- code update: ZIP -> ONE GitHub commit */
+  var JSZIP_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  var JSZIP_SRI = 'sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==';
+  function loadJSZip() {
+    if (window.JSZip) return Promise.resolve(window.JSZip);
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.integrity = JSZIP_SRI; s.crossOrigin = 'anonymous'; s.referrerPolicy = 'no-referrer'; s.src = JSZIP_SRC;
+      s.onload = function () { if (window.JSZip) res(window.JSZip); else rej(new Error('The ZIP reader did not start. Reload this page and try again.')); };
+      s.onerror = function () { rej(new Error('Could not load the ZIP reader (it needs an internet connection). Reload this page and try again.')); };
+      document.head.appendChild(s);
+    });
+  }
+  function refPath() { return CFG.branch.split('/').map(encodeURIComponent).join('/'); }
+  async function ghApi(method, path, body) {
+    var r;
+    try { r = await fetch(API + '/repos/' + CFG.owner + '/' + CFG.repo + '/' + path, { method: method, headers: headers(), body: body ? JSON.stringify(body) : undefined, cache: 'no-store' }); }
+    catch (e) { throw new Error('Cannot reach GitHub. Check your internet connection.'); }
+    var j = {}; try { j = await r.json(); } catch (e) { j = {}; }
+    if (!r.ok) {
+      var err = new Error((r.status === 409 || r.status === 422) ? ('GitHub rejected this step: ' + (j.message || ('error ' + r.status))) : friendly(r.status, j, path));
+      err.status = r.status; err.gh = j; throw err;
+    }
+    return j;
+  }
+  function bytesToB64(bytes) { var bin = ''; for (var i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); }
+  /* the SHA GitHub gives a file: sha1("blob <size>\0" + bytes). Lets us tell New / Changed / Same without uploading anything. */
+  async function gitSha(bytes) {
+    if (!(window.crypto && crypto.subtle)) return '';
+    var head = new TextEncoder().encode('blob ' + bytes.length + '\0'), all = new Uint8Array(head.length + bytes.length);
+    all.set(head, 0); all.set(bytes, head.length);
+    var d = new Uint8Array(await crypto.subtle.digest('SHA-1', all)), out = '';
+    for (var i = 0; i < d.length; i++) out += ('0' + d[i].toString(16)).slice(-2);
+    return out;
+  }
+  async function repoSnapshot() {
+    var ref = await ghApi('GET', 'git/ref/heads/' + refPath());
+    var headSha = ref.object.sha;
+    var cm = await ghApi('GET', 'git/commits/' + headSha);
+    var tr = await ghApi('GET', 'git/trees/' + cm.tree.sha + '?recursive=1');
+    var map = {};
+    (tr.tree || []).forEach(function (t) { if (t.type === 'blob') map[t.path] = t; });
+    return { headSha: headSha, treeSha: cm.tree.sha, map: map, truncated: !!tr.truncated };
+  }
+  async function readZip(file) {
+    var JSZip = await loadJSZip(), zip;
+    try { zip = await JSZip.loadAsync(file); } catch (e) { throw new Error('That file could not be read as a ZIP. Make sure you chose the .zip file (not a folder or another file type).'); }
+    var items = [], ignored = 0;
+    zip.forEach(function (rel, entry) {
+      if (entry.dir) return;
+      var p = String(rel).replace(/\\/g, '/').replace(/^(\.\/)+/, '').replace(/^\/+/, '');
+      if (/(^|\/)__MACOSX\//.test(p) || /(^|\/)\.DS_Store$/.test(p) || /(^|\/)Thumbs\.db$/i.test(p) || /(^|\/)\.git(\/|$)/.test(p) || /^\.github\//.test(p)) { ignored++; return; }
+      items.push({ path: p, entry: entry });
+    });
+    if (!items.length) throw new Error('This ZIP has no files in it.');
+    var stripped = '';
+    var tops = {}; items.forEach(function (i) { tops[i.path.split('/')[0]] = 1; });
+    var topKeys = Object.keys(tops);
+    if (topKeys.length === 1 && topKeys[0] !== 'assets' && items.every(function (i) { return i.path.indexOf('/') > 0; })) {
+      stripped = topKeys[0];
+      items.forEach(function (i) { i.path = i.path.slice(stripped.length + 1); });
+    }
+    var files = [], bad = [];
+    for (var k = 0; k < items.length; k++) {
+      var it = items[k], segs = it.path.split('/');
+      if (!it.path || segs.some(function (s) { return !s || s === '.' || s === '..'; }) || /[\u0000-\u001f]/.test(it.path)) { bad.push(it.path || '(empty name)'); continue; }
+      var bytes = await it.entry.async('uint8array');
+      if (bytes.length > 25 * 1024 * 1024) { bad.push(it.path + ' (larger than 25 MB)'); continue; }
+      files.push({ path: it.path, bytes: bytes, sha: await gitSha(bytes) });
+    }
+    files.sort(function (a, b) { return a.path < b.path ? -1 : a.path > b.path ? 1 : 0; });
+    return { files: files, stripped: stripped, ignored: ignored, bad: bad };
+  }
+
+  async function renderUpdate(view) {
+    view.appendChild(el('h1', { text: 'Code update' }));
+    view.appendChild(el('p', { class: 'muted', text: 'Choose a website update ZIP. The panel unpacks it and lists every file. When you press "Commit changes", everything is saved to GitHub as ONE commit, the same as GitHub\'s own "Upload files" page. Files are only added or replaced, never deleted.' }));
+    var area = el('div'); view.appendChild(area);
+
+    function protReason(path, exists) {
+      if (!exists) return '';
+      if (/^assets\/js\/[^\/]+-data\.js$/.test(path)) return 'Your content (edited in this panel)';
+      if (path === 'CNAME') return 'Your domain setting';
+      if (path === 'sitemap.xml') return 'Kept up to date by this panel';
+      if (/^assets\/images\//.test(path)) return 'Your uploaded photo';
+      return '';
+    }
+    function offReason(path) { return /(^|\/)Code\.gs$/i.test(path) ? 'Apps Script file, not for GitHub' : ''; }
+    function kb(n) { return n < 1024 ? n + ' B' : Math.round(n / 1024) + ' KB'; }
+
+    function showPicker(m) {
+      area.innerHTML = '';
+      if (m) area.appendChild(el('div', { class: 'msg ' + m.kind, text: m.text }));
+      var inp = el('input', { type: 'file', accept: '.zip,application/zip,application/x-zip-compressed' });
+      var drop = el('label', { class: 'drop' }, [el('b', { text: 'Choose the update ZIP' }), el('span', { text: 'Tap to select a .zip file, or drop it here' }), inp]);
+      ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); }); });
+      ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); }); });
+      drop.addEventListener('drop', function (e) { var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) handle(f); });
+      inp.addEventListener('change', function () { if (inp.files && inp.files[0]) handle(inp.files[0]); });
+      area.appendChild(drop);
+    }
+
+    async function handle(file) {
+      area.innerHTML = ''; area.appendChild(el('p', { class: 'muted', text: 'Reading ' + file.name + ' and checking it against GitHub…' }));
+      try {
+        var parsed = await readZip(file);
+        var snap = await repoSnapshot();
+        review(file, parsed, snap);
+      } catch (e) { showPicker({ kind: 'err', text: e.message }); }
+    }
+
+    function review(file, parsed, snap) {
+      area.innerHTML = '';
+      var files = parsed.files.map(function (f) {
+        var cur = snap.map[f.path], exists = !!cur, same = exists && !!f.sha && cur.sha === f.sha;
+        var prot = same ? '' : protReason(f.path, exists), off = same ? '' : offReason(f.path);
+        return { path: f.path, bytes: f.bytes, status: same ? 'same' : (exists ? 'chg' : 'new'), prot: prot, off: off, on: !same && !prot && !off, dis: same };
+      });
+      var nNew = files.filter(function (f) { return f.status === 'new'; }).length, nChg = files.filter(function (f) { return f.status === 'chg'; }).length, nSame = files.filter(function (f) { return f.status === 'same'; }).length;
+      area.appendChild(el('div', { class: 'msg info', text: file.name + ' · ' + files.length + ' files · ' + nNew + ' new · ' + nChg + ' changed · ' + nSame + ' already identical on GitHub.' + (parsed.stripped ? '\nThe outer folder "' + parsed.stripped + '/" inside the ZIP was ignored, so the files go to the top of your repository.' : '') + (parsed.ignored ? '\n' + parsed.ignored + ' system file(s) skipped.' : '') + (snap.truncated ? '\nYour repository is very large, so some "New/Changed" labels may be inaccurate.' : '') }));
+      if (parsed.bad.length) area.appendChild(el('div', { class: 'msg err', text: 'Skipped (cannot be uploaded):\n' + parsed.bad.join('\n') }));
+      if (files.some(function (f) { return f.prot; })) area.appendChild(el('div', { class: 'msg info', text: 'Files marked PROTECTED already exist on GitHub and hold your own content, so they are left UNTICKED. Tick one only if you really want the ZIP version to replace yours.' }));
+      if (!files.length) { showPicker({ kind: 'err', text: 'Nothing in this ZIP can be uploaded.' }); return; }
+
+      var listEl = el('div'), summary = el('p', { class: 'muted', style: 'margin:0 0 10px' }), commitBtn;
+      function upd() {
+        var n = files.filter(function (f) { return f.on; }).length;
+        summary.textContent = n ? (n + ' file' + (n === 1 ? '' : 's') + ' will be committed as one commit.') : 'Tick at least one file to commit.';
+        if (commitBtn) commitBtn.disabled = !n || S.busy;
+      }
+      files.forEach(function (f) {
+        var cb = el('input', { type: 'checkbox' }); cb.checked = f.on; cb.disabled = f.dis;
+        var parts = f.path.split('/'), name = parts.pop();
+        var tag = f.prot ? el('span', { class: 'tag prot', text: 'PROTECTED' }) : (f.off ? el('span', { class: 'tag same', text: 'SKIPPED' }) : el('span', { class: 'tag ' + f.status, text: f.status === 'new' ? 'NEW' : f.status === 'chg' ? 'CHANGED' : 'SAME' }));
+        var row = el('label', { class: 'frow' + (f.dis ? ' off' : '') }, [cb, el('span', { class: 'fpath' }, [el('b', { text: name }), el('small', { text: (parts.length ? parts.join('/') + '/ · ' : '') + kb(f.bytes.length) + (f.prot ? ' · ' + f.prot : '') + (f.off ? ' · ' + f.off : '') })]), tag]);
+        cb.addEventListener('change', function () { f.on = cb.checked; upd(); });
+        f.cb = cb; listEl.appendChild(row);
+      });
+      var tools = el('div', { style: 'display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap' }, [
+        el('button', { type: 'button', class: 'tb', text: 'Tick all new + changed', onclick: function () { files.forEach(function (f) { if (!f.dis && !f.prot && !f.off) { f.on = true; f.cb.checked = true; } }); upd(); } }),
+        el('button', { type: 'button', class: 'tb', text: 'Untick all', onclick: function () { files.forEach(function (f) { f.on = false; f.cb.checked = false; }); upd(); } })
+      ]);
+      area.appendChild(tools); area.appendChild(listEl);
+
+      /* ---- commit box (same layout as GitHub's "Commit changes") ---- */
+      var d = new Date(), p2 = function (n) { return String(n).padStart(2, '0'); };
+      var title = el('input', { type: 'text', placeholder: 'Add files via upload', autocomplete: 'off' });
+      var desc = el('textarea', { rows: 4, placeholder: 'Add an optional extended description…' });
+      var mDirect = el('input', { type: 'radio', name: 'cmode', value: 'direct' }); mDirect.checked = true;
+      var mBranch = el('input', { type: 'radio', name: 'cmode', value: 'branch' });
+      var bname = el('input', { type: 'text', value: 'update-' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '-' + p2(d.getHours()) + p2(d.getMinutes()), autocomplete: 'off', autocapitalize: 'off' });
+      var bwrap = el('div', { style: 'margin:0 0 6px 28px', hidden: true }, [bname]);
+      function sync() { bwrap.hidden = !mBranch.checked; }
+      mDirect.addEventListener('change', sync); mBranch.addEventListener('change', sync);
+      var prog = el('p', { class: 'muted', style: 'margin:10px 0 0' });
+      commitBtn = el('button', { type: 'button', class: 'btn green', text: 'Commit changes', onclick: commit });
+      var cancelBtn = el('button', { type: 'button', class: 'btn cancel', text: 'Cancel', onclick: function () { showPicker(); } });
+      area.appendChild(el('div', { class: 'cbox' }, [
+        el('h2', { text: 'Commit changes' }), summary, title, desc,
+        el('label', { class: 'rad' }, [mDirect, el('span', { html: 'Commit directly to the <code>' + CFG.branch.replace(/[<>&"]/g, '') + '</code> branch.' })]),
+        el('label', { class: 'rad' }, [mBranch, el('span', { html: 'Create a <b>new branch</b> for this commit and start a pull request.' })]), bwrap,
+        el('div', { class: 'cbtns' }, [commitBtn, cancelBtn]), prog
+      ]));
+      upd();
+
+      async function commit() {
+        var sel = files.filter(function (f) { return f.on; });
+        if (!sel.length || S.busy) return;
+        var prot = sel.filter(function (f) { return f.prot; });
+        if (prot.length && !confirm('You ticked ' + prot.length + ' PROTECTED file(s). They will be REPLACED by the versions inside the ZIP:\n\n' + prot.map(function (f) { return f.path; }).join('\n') + '\n\nContinue?')) return;
+        var asBranch = mBranch.checked, newName = bname.value.trim();
+        if (asBranch && (!/^[A-Za-z0-9][A-Za-z0-9._\/-]{0,80}$/.test(newName) || /\.\.|\/\/|\/$|\.lock$/.test(newName))) { alert('Branch name: use letters, numbers, dashes and dots only (for example update-1).'); return; }
+        var msg = (title.value.trim() || 'Add files via upload'), ext = desc.value.trim(); if (ext) msg += '\n\n' + ext;
+        S.busy = true; refreshBar(); commitBtn.disabled = true; cancelBtn.disabled = true;
+        var committed = false;
+        try {
+          prog.textContent = 'Checking GitHub…';
+          var snap2 = await repoSnapshot();
+          for (var i = 0; i < sel.length; i++) {
+            prog.textContent = 'Uploading file ' + (i + 1) + ' of ' + sel.length + '…';
+            sel[i].blob = (await ghApi('POST', 'git/blobs', { content: bytesToB64(sel[i].bytes), encoding: 'base64' })).sha;
+          }
+          prog.textContent = 'Creating the commit…';
+          var attempt = 0, newSha;
+          for (;;) {
+            var tr = await ghApi('POST', 'git/trees', { base_tree: snap2.treeSha, tree: sel.map(function (f) { var cur = snap2.map[f.path]; return { path: f.path, mode: (cur && cur.mode) || '100644', type: 'blob', sha: f.blob }; }) });
+            var cm = await ghApi('POST', 'git/commits', { message: msg, tree: tr.sha, parents: [snap2.headSha] });
+            newSha = cm.sha;
+            if (asBranch) {
+              try { await ghApi('POST', 'git/refs', { ref: 'refs/heads/' + newName, sha: newSha }); }
+              catch (e) { if (e.status === 422) throw new Error('A branch called "' + newName + '" already exists. Type a different branch name and press Commit changes again.'); throw e; }
+              committed = true; break;
+            }
+            try { await ghApi('PATCH', 'git/refs/heads/' + refPath(), { sha: newSha, force: false }); committed = true; break; }
+            catch (e2) { if (e2.status === 422 && attempt === 0) { attempt++; prog.textContent = 'GitHub changed while uploading, retrying…'; snap2 = await repoSnapshot(); continue; } throw e2; }
+          }
+          /* forget cached copies so the panel re-reads what was just committed */
+          sel.forEach(function (f) { if (/^assets\/js\//.test(f.path) && !S.dirty[f.path]) delete S.files[f.path]; });
+          blobCache = {};
+          var url = 'https://github.com/' + CFG.owner + '/' + CFG.repo;
+          var selfUpd = sel.some(function (f) { return f.path === 'origo-control.html'; });
+          area.innerHTML = '';
+          var ok = el('div', { class: 'msg ok' }, [
+            '✓ ' + sel.length + ' file' + (sel.length === 1 ? '' : 's') + ' committed ' + (asBranch ? 'to the new branch "' + newName + '"' : 'to ' + CFG.branch) + ' as one commit.\n',
+            el('a', { href: url + '/commit/' + newSha, target: '_blank', rel: 'noopener', text: 'View the commit on GitHub ↗' })
+          ]);
+          area.appendChild(ok);
+          if (asBranch) area.appendChild(el('div', { class: 'msg info' }, ['The live site is not changed yet. Open the pull request and merge it:\n', el('a', { href: url + '/compare/' + encodeURIComponent(CFG.branch) + '...' + encodeURIComponent(newName) + '?expand=1', target: '_blank', rel: 'noopener', text: 'Open pull request ↗' })]));
+          else area.appendChild(el('div', { class: 'msg info', text: 'The live site updates in 1–2 minutes. Then refresh the website with Ctrl+Shift+R.' + (selfUpd ? '\nThis control panel was updated too: reload this page (Ctrl+Shift+R) after 1–2 minutes to use the new version.' : '') }));
+          area.appendChild(el('button', { type: 'button', class: 'btn ghost', text: 'Upload another ZIP', onclick: function () { showPicker(); } }));
+        } catch (e) {
+          prog.textContent = '';
+          commitBtn.disabled = false; cancelBtn.disabled = false;
+          area.insertBefore(el('div', { class: 'msg err', text: (committed ? 'The commit WAS saved to GitHub, but this page hit a problem showing the result: ' : 'Nothing was changed on your live site.\n') + e.message }), area.firstChild);
+          window.scrollTo(0, 0);
+        } finally { S.busy = false; refreshBar(); }
+      }
+    }
+    showPicker();
+  }
+
   /* ---------------------------------------------------------------- views */
   var main;
   function shell() {
@@ -862,6 +1106,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       SECTIONS.filter(function (s) { return s.group === g; }).forEach(function (s) { nav.appendChild(el('button', { class: 'pill' + (S.section === s.id ? ' on' : ''), text: s.title, onclick: function () { go(s.id); } })); });
     });
     nav.appendChild(el('span', { class: 'sep', text: 'Tools' })); nav.appendChild(el('button', { class: 'pill' + (S.section === 'unused' ? ' on' : ''), text: 'Unused photos', onclick: function () { go('unused'); } }));
+    nav.appendChild(el('button', { class: 'pill' + (S.section === 'update' ? ' on' : ''), text: 'Code update', onclick: function () { go('update'); } }));
     var top = el('div', { class: 'top' }, [
       el('div', { class: 'toprow' }, [
         el('div', { class: 'brand', html: 'ORIGO <span>Control</span>' }),
@@ -887,11 +1132,13 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
       var cards = el('div', { class: 'cards' });
       SECTIONS.forEach(function (s) { cards.appendChild(el('button', { class: 'card', onclick: function () { go(s.id); } }, [el('b', { text: s.title }), el('span', { text: s.intro })])); });
       cards.appendChild(el('button', { class: 'card', onclick: function () { go('unused'); } }, [el('b', { text: 'Unused photos' }), el('span', { text: 'Find photos nothing uses any more and delete them.' })]));
+      cards.appendChild(el('button', { class: 'card', onclick: function () { go('update'); } }, [el('b', { text: 'Code update' }), el('span', { text: 'Upload a website update ZIP, review the files, and commit it to GitHub in one click.' })]));
       view.appendChild(cards);
       view.appendChild(el('div', { class: 'box', style: 'margin-top:18px' }, [el('b', { text: 'Tips' }), el('p', { class: 'muted', style: 'margin:6px 0 0', text: 'Titles: a new line makes a line break, and *stars* around a word make it outlined. Photos are resized automatically before upload. Every save is a GitHub commit, so older versions can always be restored from the repository history.' })]));
       refreshBar(); return;
     }
     if (id === 'unused') { await renderUnused(view); refreshBar(); return; }
+    if (id === 'update') { await renderUpdate(view); refreshBar(); return; }
     var sec = secById(id);
     view.appendChild(el('h1', { text: sec.title })); view.appendChild(el('p', { class: 'muted', text: sec.intro }));
     view.appendChild(el('div', { style: 'margin:-6px 0 14px' }, [el('button', { type: 'button', id: 'discardbtn', class: 'tb', text: '↺ Discard unsaved changes', disabled: !S.dirty['assets/js/' + sec.file], onclick: function () {

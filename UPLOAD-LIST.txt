@@ -1,29 +1,32 @@
-CODE-ONLY UPDATE v7  (your content is NOT touched)
-==================================================
-(If you have not installed the previous v6 update yet, install v6 first: it adds the page builder,
-event projects and projects-data.js.)
+CONTROL PANEL UPDATE v8  (your content is NOT touched)
+=====================================================
+New in v8: "Code update" tool inside the control panel.
+Future website updates no longer need manual GitHub uploads.
 
-Upload these files to your GitHub repo root (same folders, replace when asked):
+FIRST TIME ONLY (manual upload, one file):
+  1. GitHub repo > Add file > Upload files
+  2. Upload ONE file:  origo-control.html   (replace when asked)
+  3. Commit changes. Wait 1-2 minutes, open /origo-control.html, press Ctrl+Shift+R.
 
-  index.html, about.html, companies.html, events.html, page.html
-  404.html                         (NEW)
-  favicon.ico                      (NEW)
-  robots.txt                       (NEW)
-  sitemap.xml                      (NEW - the control panel keeps it updated)
-  origo-control.html
-  assets/js/content.js
-  assets/js/events.js
-  assets/js/site.js
-  assets/css/style.css
-  assets/images/share.jpg          (NEW)
-  assets/images/favicon-32.png     (NEW)
-  assets/images/apple-touch-icon.png (NEW)
+DO NOT upload anything else from this zip. No data, images, CSS or JS change.
 
-Optional: GUIDES.txt (instructions; you can keep it on your computer instead of the repo).
+HOW TO USE (from now on)
+  1. Open the control panel > Tools > "Code update" (or the Dashboard card).
+  2. Choose the update ZIP (drop it or tap to select).
+     The panel unpacks it and lists every file as NEW / CHANGED / SAME / PROTECTED.
+  3. Check the list, add an optional commit message, then press  "Commit changes".
+     Everything goes to GitHub as ONE commit (same as GitHub's "Upload files" page).
+  4. Wait 1-2 minutes and refresh the website with Ctrl+Shift+R.
 
-DO NOT upload contact.html - your working contact page stays exactly as it is.
-DO NOT overwrite: assets/js/*-data.js, assets/images/ photos you uploaded, CNAME.
-
-Separate file: Code.gs  -> paste into Apps Script (see GUIDES.txt, section 3).
-
-After the commit wait 1-2 minutes and refresh with Ctrl+Shift+R.
+SAFETY RULES
+  - Files are only added or replaced. Nothing is ever deleted.
+  - SAME files (already identical on GitHub) are locked and not re-uploaded.
+  - PROTECTED files are left UNTICKED because they hold your own content:
+      assets/js/*-data.js, CNAME, sitemap.xml and photos already in assets/images/.
+    Tick one only if you really want the ZIP version to replace yours (you get a confirmation).
+  - Code.gs (Apps Script) is skipped: it is pasted into Apps Script, not GitHub.
+  - Wrapper folders inside the ZIP (for example "site-main/") are ignored automatically.
+  - If a commit fails, nothing on the live site changes.
+  - Undo: GitHub repo > History > open the commit > Revert.
+  - Optional: choose "Create a new branch" to review the change as a pull request before it goes live.
+  - Needs the same token as before (Contents: Read and write). No new permission is required.
