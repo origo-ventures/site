@@ -11,7 +11,7 @@ window.ORIGO_NDA = {
     "events": [
         {
             "name": "Clock End",
-            "tagline": "",
+            "tagline": "90 minutes is only part of it.",
             "image": "assets/images/nda/clock-end__pmv9epf8ptnv.png",
             "link": ""
         },
@@ -23,19 +23,19 @@ window.ORIGO_NDA = {
         },
         {
             "name": "Bangla Fruit",
-            "tagline": "",
+            "tagline": "Culture is the product too.",
             "image": "",
             "link": ""
         },
         {
             "name": "Moonwater",
-            "tagline": "",
+            "tagline": "Moonwater is a small, intimate escape built around music, nature and the people in the room.",
             "image": "",
             "link": ""
         },
         {
             "name": "Zen Garden",
-            "tagline": "",
+            "tagline": "A wellness-led format exploring movement, recovery, calm and community.",
             "image": "",
             "link": ""
         },
