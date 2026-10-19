@@ -9,11 +9,13 @@ window.ORIGO_SITE = {
         "email": "contact.origoventures@gmail.com",
         "phone": "+880 1719221497",
         "address": "Dhaka, Bangladesh",
-        "mapQuery": "Dhaka, Bangladesh",
-        "mapLink": "",
+        "mapQuery": "8/15 Block # A, Lalmatia, Dhaka-1207",
+        "mapLink": "https://maps.app.goo.gl/Xo2qwXMySBDMmtnYA",
         "linkedin": "#",
         "facebook": "#",
-        "instagram": "#"
+        "instagram": "#",
+        "showWhatsapp": true,
+        "whatsapp": "+880 1719221497"
     },
     "founder": {
         "name": "Nazmus Shams",
@@ -26,17 +28,18 @@ window.ORIGO_SITE = {
     "ventures": [
         {
             "name": "Splendor by Aneeka Bushra",
-            "year": "2024",
-            "category": "Beauty Salon",
-            "description": "Replace with the approved description of this company, what it does and the role Origo Ventures plays.",
+            "year": "-",
+            "category": "Women's Beauty makeover & Salon",
+            "description": "Aneeka Bushra is one of Bangladesh's well-known professional bridal makeup artists and beauty entrepreneurs. She is recognized for her signature natural bridal makeup style and has built a strong reputation in the wedding industry.",
             "tags": [
-                "Product",
-                "Brand",
-                "Partnerships"
+                "Beauty Parlour",
+                "Salon",
+                "Makeover",
+                "Party Makeover"
             ],
             "stats": [
                 {
-                    "value": "2024",
+                    "value": "-",
                     "label": "Founded"
                 },
                 {
@@ -48,22 +51,25 @@ window.ORIGO_SITE = {
                     "label": "Location"
                 }
             ],
-            "image": ""
+            "image": "assets/images/ventures/splendor-by-aneeka-bushra__pmvesxx6t170.jpg"
         },
         {
             "name": "Wedding Berries Events",
-            "year": "2025",
-            "category": "Event Planning",
-            "description": "Replace with the approved description of this company, what it does and the role Origo Ventures plays.",
+            "year": "-",
+            "category": "Event Management, Décor",
+            "description": "Wedding Berries design, plan & execute unforgettable moments for all wedding events, after-parties, socials & brands.",
             "tags": [
-                "Strategy",
-                "Plan",
-                "Growth",
-                "Execution"
+                "Décor",
+                "Akth",
+                "Reception",
+                "Wedding",
+                "Holud",
+                "Rong Khela",
+                "Birthday Party"
             ],
             "stats": [
                 {
-                    "value": "2025",
+                    "value": "-",
                     "label": "Founded"
                 },
                 {
@@ -75,7 +81,7 @@ window.ORIGO_SITE = {
                     "label": "Location"
                 }
             ],
-            "image": ""
+            "image": "assets/images/ventures/wedding-berries-events__pmvesy2hnvy7.jpg"
         }
     ]
 };
