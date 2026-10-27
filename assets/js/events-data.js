@@ -11,17 +11,16 @@
 window.ORIGO_EVENTS = [
     {
         "id": "origo-founders-summit-2026",
-        "title": "Halloween",
-        "date": "29th October 2026",
-        "time": "07:00 PM – 12:00 AM",
+        "title": "The Haunted Club",
+        "date": "30th October 2026",
+        "time": "04:00 PM – 01:00 AM",
         "venue": "SC Club, Dhaka, Bangladesh",
         "category": "Event",
-        "status": "Current",
         "tagline": "Get ready for a night of frights, fun, and eerie delights! Put on your best costume and join us for a spooktacular celebration!",
         "description": [
             "The moon is high and the spirits are near, It is time for the most thrilling party of the year! Wear your best costume and bring all your cheer, For a night of sweet treats and chills so severe!"
         ],
-        "image": "assets/images/events/halloween__pmv7zvikc545.jpg",
+        "image": "assets/images/events/halloween__pmvqff3r8huh.png",
         "tags": [
             "Food",
             "Music",
@@ -42,6 +41,7 @@ window.ORIGO_EVENTS = [
                 "label": "Day"
             }
         ],
-        "ticketLink": ""
+        "ticketLink": "",
+        "dateISO": "2026-10-30"
     }
 ];
