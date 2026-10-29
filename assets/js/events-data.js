@@ -20,7 +20,7 @@ window.ORIGO_EVENTS = [
         "description": [
             "The moon is high and the spirits are near, It is time for the most thrilling party of the year! Wear your best costume and bring all your cheer, For a night of sweet treats and chills so severe!"
         ],
-        "image": "assets/images/events/halloween__pmvqff3r8huh.png",
+        "image": "assets/images/events/the-haunted-club__pmvt4kdc4uge.jpg",
         "tags": [
             "Food",
             "Music",
