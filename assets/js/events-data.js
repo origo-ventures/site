@@ -29,7 +29,7 @@ window.ORIGO_EVENTS = [
         ],
         "stats": [
             {
-                "value": "80+",
+                "value": "100+",
                 "label": "Members, Non-Members"
             },
             {
@@ -62,6 +62,14 @@ window.ORIGO_EVENTS = [
             {
                 "value": "80+",
                 "label": "Members, Non-Members, Guests"
+            },
+            {
+                "value": "Social Gathering (Paid)",
+                "label": "Topics"
+            },
+            {
+                "value": "1",
+                "label": "Day"
             }
         ],
         "id": "name-will-be-announced"
