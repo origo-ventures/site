@@ -111,11 +111,11 @@ window.ORIGO_CONTENT = {
         "eyebrow": "Events",
         "title": "Moments that\n*move* ideas.",
         "lead": "Launches, gatherings, announcements and photo stories from Origo Ventures.",
-        "currentHeading": "Current\nEvent",
-        "upcomingHeading": "Upcoming\nEvents",
+        "currentHeading": "Current\nEvent - TBA",
+        "upcomingHeading": "Upcoming\nEvents - TBA",
         "upcomingLead": "What's coming next from Origo Ventures.",
-        "pastHeading": "The 90",
-        "pastLead": "The 90 Minutes of Football but vibe stay still till mid-night."
+        "pastHeading": "",
+        "pastLead": ""
     },
     "contact": {
         "eyebrow": "Contact",
