@@ -111,8 +111,8 @@ window.ORIGO_CONTENT = {
         "eyebrow": "Events",
         "title": "Moments that\n*move* ideas.",
         "lead": "Launches, gatherings, announcements and photo stories from Origo Ventures.",
-        "currentHeading": "Current\nEvent - TBA",
-        "upcomingHeading": "Upcoming\nEvents - TBA",
+        "currentHeading": "",
+        "upcomingHeading": "",
         "upcomingLead": "What's coming next from Origo Ventures.",
         "pastHeading": "",
         "pastLead": ""
