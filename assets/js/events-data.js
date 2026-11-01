@@ -43,5 +43,27 @@ window.ORIGO_EVENTS = [
         ],
         "ticketLink": "",
         "dateISO": "2026-10-30"
+    },
+    {
+        "title": "Name Will Be Announced",
+        "dateISO": "2026-11-21",
+        "time": "04:00 PM - 12:00 AM",
+        "venue": "SC Club",
+        "category": "NDA",
+        "tags": [
+            "Food",
+            "Music",
+            "Social Gathering",
+            "Hangout",
+            "Party"
+        ],
+        "date": "21st November 2026",
+        "stats": [
+            {
+                "value": "80+",
+                "label": "Members, Non-Members, Guests"
+            }
+        ],
+        "id": "name-will-be-announced"
     }
 ];
