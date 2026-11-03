@@ -45,26 +45,25 @@ window.ORIGO_EVENTS = [
         "dateISO": "2026-10-30"
     },
     {
-        "title": "Name Will Be Announced",
+        "title": "Clock End",
         "dateISO": "2026-11-21",
         "time": "04:00 PM - 12:00 AM",
-        "venue": "SC Club",
+        "venue": "Lakeshore Grand | Dhaka",
         "category": "NDA",
         "tags": [
+            "Premier League Show",
             "Food",
             "Music",
-            "Social Gathering",
-            "Hangout",
-            "Party"
+            "Gaming Contest"
         ],
         "date": "21st November 2026",
         "stats": [
             {
-                "value": "80+",
-                "label": "Members, Non-Members, Guests"
+                "value": "200+",
+                "label": "Members, Guests"
             },
             {
-                "value": "Social Gathering (Paid)",
+                "value": "Premier League Show (Paid)",
                 "label": "Topics"
             },
             {
