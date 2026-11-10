@@ -42,12 +42,11 @@ window.ORIGO_EVENTS = [
             }
         ],
         "ticketLink": "",
-        "dateISO": "2026-10-30",
-        "status": "Current"
+        "dateISO": "2026-10-30"
     },
     {
         "title": "Clock End",
-        "dateISO": "2026-11-21",
+        "dateISO": "2026-11-29",
         "time": "04:00 PM - 01:00 AM",
         "venue": "To be announced...",
         "category": "NDA",
@@ -72,7 +71,6 @@ window.ORIGO_EVENTS = [
                 "label": "Day"
             }
         ],
-        "id": "name-will-be-announced",
-        "status": "Upcoming"
+        "id": "name-will-be-announced"
     }
 ];
