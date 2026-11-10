@@ -42,13 +42,14 @@ window.ORIGO_EVENTS = [
             }
         ],
         "ticketLink": "",
-        "dateISO": "2026-10-30"
+        "dateISO": "2026-10-30",
+        "status": "Current"
     },
     {
         "title": "Clock End",
         "dateISO": "2026-11-21",
-        "time": "04:00 PM - 12:00 AM",
-        "venue": "Lakeshore Grand | Dhaka",
+        "time": "04:00 PM - 01:00 AM",
+        "venue": "To be announced...",
         "category": "NDA",
         "tags": [
             "Premier League Show",
@@ -56,11 +57,11 @@ window.ORIGO_EVENTS = [
             "Music",
             "Gaming Contest"
         ],
-        "date": "21st November 2026",
+        "date": "29th November 2026",
         "stats": [
             {
                 "value": "200+",
-                "label": "Members, Guests"
+                "label": "Guests"
             },
             {
                 "value": "Premier League Show (Paid)",
@@ -71,6 +72,7 @@ window.ORIGO_EVENTS = [
                 "label": "Day"
             }
         ],
-        "id": "name-will-be-announced"
+        "id": "name-will-be-announced",
+        "status": "Upcoming"
     }
 ];
